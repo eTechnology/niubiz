@@ -1,0 +1,17 @@
+# Gitignore Ver 1.1
+# Este archivo fue personalizado para sistemas desarrollados en Prestashop 1.5 y 1.6
+#
+# @author Victor Castro Contreras
+# @mail victor@castrocontreras.com
+# @web www.castrocontreras.com
+
+
+# Directories
+.sass-cache
+
+# Files
+config_*
+config.xml
+
+# Extensions
+*.css.map
