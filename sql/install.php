@@ -75,6 +75,18 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'visanetperu_log (
     PRIMARY KEY  (id_visa)
 ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
+$sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'visanetperu_pagoefectivo (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    id_order INT(11),
+    id_cart INT(11),
+    id_customer INT(11),
+    cip VARCHAR(20),
+    customerEmail VARCHAR(50),
+    url TEXT(50),
+    date_add timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
         return false;

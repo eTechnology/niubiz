@@ -34,35 +34,34 @@
         <div class="col-xs-12 col-md-12">
             <form action="{$link->getModuleLink('visanetperu', 'return')|escape:'html':'UTF-8'}" method="post">
                 <script src="{$var.urlScript|escape:'html':'UTF-8'}"
-    			data-sessiontoken="{$var.sessionToken|escape:'htmlall':'UTF-8'}"
-    			data-merchantid="{$var.merchantId|escape:'htmlall':'UTF-8'}"
-    			data-channel="web"
-    			data-buttonsize=""
-    			data-buttoncolor="" 
-    			data-merchantlogo="http://{$logo|escape:'htmlall':'UTF-8'}"
-    			data-merchantname=""
-    			data-formbuttoncolor="#0A0A2A"
-    			data-showamount=""
-    			data-purchasenumber="{$var.numOrden|escape:'htmlall':'UTF-8'}"
-    			data-amount="{$var.monto|escape:'htmlall':'UTF-8'}"
-    			data-cardholdername="{$customer->firstname|escape:'htmlall':'UTF-8'}"
-    			data-cardholderlastname="{$customer->lastname|escape:'htmlall':'UTF-8'}"
-    			data-cardholderemail="{$customer->email|escape:'htmlall':'UTF-8'}"
-    			data-usertoken="{$var.userTokenId|escape:'htmlall':'UTF-8'}"
-    			data-recurrence=""
-    			data-frequency=""
-    			data-recurrencetype=""
-    			data-recurrenceamount=""
-    			data-documenttype="0"
-    			data-documentid=""
-    			data-beneficiaryid="VISANET"
-    			data-productid=""
-    			data-phone=""
-    			data-timeouturl="http://localhost:8080"
-    		/></script>
+                  data-sessiontoken="{$var.sessionToken|escape:'htmlall':'UTF-8'}"
+                  data-merchantid="{$var.merchantId|escape:'htmlall':'UTF-8'}"
+                  data-channel="web"
+                  data-buttonsize=""
+                  data-buttoncolor=""
+                  data-merchantlogo="http://{$logo|escape:'htmlall':'UTF-8'}"
+                  data-merchantname=""
+                  data-formbuttoncolor="#0A0A2A"
+                  data-showamount=""
+                  data-purchasenumber="{$var.numOrden|escape:'htmlall':'UTF-8'}"
+                  data-amount="{$var.monto|escape:'htmlall':'UTF-8'}"
+                  data-cardholdername="{$customer->firstname|escape:'htmlall':'UTF-8'}"
+                  data-cardholderlastname="{$customer->lastname|escape:'htmlall':'UTF-8'}"
+                  data-cardholderemail="{$customer->email|escape:'htmlall':'UTF-8'}"
+                  data-usertoken="{$var.userTokenId|escape:'htmlall':'UTF-8'}"
+                  data-recurrence=""
+                  data-frequency=""
+                  data-recurrencetype=""
+                  data-recurrenceamount=""
+                  data-documenttype="0"
+                  data-documentid=""
+                  data-beneficiaryid="VISANET"
+                  data-productid=""
+                  data-phone=""
+                  data-expirationminutes='5'
+                  data-timeouturl="{$link->getModuleLink('visanetperu', 'return')|escape:'html':'UTF-8'}"
+                /></script>
             </form>
-            
-            
         </div>
     </div>
 </div>

@@ -28,7 +28,7 @@ class VisaNETPeruReturnModuleFrontController extends ModuleFrontController
 {
     public $ssl = true;
     public $display_column_left = false;
-    
+
     public function initContent()
     {
         parent::initContent();
@@ -46,86 +46,109 @@ class VisaNETPeruReturnModuleFrontController extends ModuleFrontController
             || !$this->module->active) {
             Tools::redirect('index.php?controller=order&step=1');
         }
-        
+
         $authorized = false;
+
         foreach (Module::getPaymentModules() as $module) {
             if ($module['name'] == 'visanetperu') {
                 $authorized = true;
                 break;
             }
         }
-        
+
         if (!$authorized) {
             die($this->module->l('This payment method is not available.', 'validation'));
         }
-        
-     
-        
+
         if (!Validate::isLoadedObject($customer)) {
             Tools::redirect('index.php?controller=order&step=1');
         }
-        
+
         $respuesta = json_decode($this->authorization($_COOKIE["key"], $total, $transactionToken, $cart->id), true);
-        
+
         echo "<pre>";
-    	print_r($respuesta);
-    	echo "<pre>";
-    	
-	    // die;
-	    
-	    $dataInput = isset($respuesta['dataMap']) ? 'dataMap' : 'data';
-	    
+        print_r($respuesta);
+        echo "<pre>";
+
+        // die;
+
+        $dataInput = isset($respuesta['dataMap']) ? 'dataMap' : 'data';
+
         unset($_COOKIE["key"]);
         $sal = [];
 
-        //print_r($rsp_dataMap); die;
-        
-
-        if ($respuesta[$dataInput]['ACTION_CODE'] == "000") {
+        if (isset($_POST['transactionToken']) && isset($_POST['url'])) {
+            $ps_os_payment = Configuration::get('PS_CHECKOUT_STATE_WAITING_CAPTURE');
+        } else if (isset($respuesta[$dataInput]) && $respuesta[$dataInput]['ACTION_CODE'] == "000") {
             $ps_os_payment = Configuration::get('PS_OS_PAYMENT');
         } else {
             $ps_os_payment = Configuration::get('PS_OS_CANCELED');
         }
-        
+
         $na = $this->module->displayName;
         $key = $customer->secure_key;
-        
+
         $this->module->validateOrder($cart->id, $ps_os_payment, $total, $na, null, null, $currency->id, false, $key);
-        
+
         $order = new Order($this->module->currentOrder);
-        $sal['data']['id_cart'] = (int)$cart->id;
-        $sal['data']['id_customer'] = (int)$customer->id;
-        $sal['data']['pan'] = $respuesta[$dataInput]['CARD'];;
-        $sal['data']['numorden'] = $respuesta[$dataInput]['TRACE_NUMBER'];
-        $sal['data']['dsc_cod_accion'] = $respuesta[$dataInput]['ACTION_DESCRIPTION'];
-        $sal['data']['dsc_eci'] = pSQL($respuesta[$dataInput]['BRAND']);
-        $sal['data']['transactionToken'] = pSQL($transactionToken);
-        $sal['data']['aliasName'] = pSQL($respuesta[$dataInput]['SIGNATURE']);
-        $sal['data']['id_order'] = (int)$order->id;
-        Db::getInstance()->insert('visanetperu_log', $sal['data']);
-        
-        $rdc = 'index.php?controller=order-confirmation&id_cart='.(int)$cart->id.'&id_module='.(int)$this->module->id;
-        
-        Tools::redirect($rdc.'&id_order='.$this->module->currentOrder.'&key='.$customer->secure_key);
+
+        if ($ps_os_payment == Configuration::get('PS_CHECKOUT_STATE_WAITING_CAPTURE')) {
+            $sal['data']['id_order'] = (int)$order->id;
+            Db::getInstance()->insert('visanetperu_pagoefectivo', [
+                'id_order' => (int)$order->id,
+                'id_cart' => (int)$cart->id,
+                'id_customer' => (int)$customer->id,
+                'cip' => $_POST['transactionToken'],
+                'customerEmail' => $_POST['customerEmail'],
+                'url' => $_POST['url'],
+            ]);
+            Tools::redirect($_POST['url']);
+        } else {
+            $sal['data']['id_cart'] = (int)$cart->id;
+            $sal['data']['id_customer'] = (int)$customer->id;
+            $sal['data']['pan'] = $respuesta[$dataInput]['CARD'];;
+            $sal['data']['numorden'] = $respuesta[$dataInput]['TRACE_NUMBER'];
+            $sal['data']['dsc_cod_accion'] = $respuesta[$dataInput]['ACTION_DESCRIPTION'];
+            $sal['data']['dsc_eci'] = pSQL($respuesta[$dataInput]['BRAND']);
+            $sal['data']['transactionToken'] = pSQL($transactionToken);
+            $sal['data']['aliasName'] = pSQL($respuesta[$dataInput]['SIGNATURE']);
+            $sal['data']['id_order'] = (int)$order->id;
+            Db::getInstance()->insert('visanetperu_log', $sal['data']);
+
+            $rdc = 'index.php?controller=order-confirmation&id_cart='.(int)$cart->id.'&id_module='.(int)$this->module->id;
+
+            Tools::redirect($rdc.'&id_order='.$this->module->currentOrder.'&key='.$customer->secure_key);
+
+        }
     }
-    
+
     function authorization($key, $amount,$transactionToken, $purchaseNumber)
     {
-        $header = array("Content-Type: application/json","Authorization: $key");
-        $request_body="{
-    
-            \"antifraud\" : null,
-            \"captureType\" : \"manual\",
-            \"channel\" : \"web\",
-            \"countable\" : true,
-            \"order\" : {
-                \"amount\" : \"$amount\",
-                \"tokenId\" : \"$transactionToken\",
-                \"purchaseNumber\" : \"$purchaseNumber\",
-                \"currency\" : \"PEN\"
-            }
-        }";
-    
+        $header = [
+            "Content-Type: application/json",
+            "Authorization: $key"
+        ];
+
+        $request_body = [
+            "antifraud" => null,
+            "captureType" => "manual",
+            "cardHolder" => [
+                "documentNumber" => "44444444",
+                "documentType" => "1"
+            ],
+            "channel" => "web",
+            "countable" => true,
+            "order" => [
+                "amount" => $amount,
+                "tokenId" => $transactionToken,
+                "purchaseNumber" => $purchaseNumber,
+                "currency" => "PEN",
+                "productId" => "100"
+            ],
+            'recurrence' => null,
+            'sponsored' => null
+        ];
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->module->authorization_api);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -134,10 +157,11 @@ class VisaNETPeruReturnModuleFrontController extends ModuleFrontController
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_POST, TRUE);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $request_body);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request_body));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         $response = curl_exec($ch);
         $json = json_decode($response);
+        // print_r($json); die;
         $json = json_encode($json, JSON_PRETTY_PRINT);
         //$dato = $json->sessionKey;
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
