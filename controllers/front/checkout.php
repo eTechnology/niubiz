@@ -134,8 +134,15 @@ class visanetperucheckoutModuleFrontController extends ModuleFrontController
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         $response = curl_exec($ch);
         $json = json_decode($response);
-
+        if (!isset($json->sessionKey)) {
+            echo json_encode([
+                'session_api' => $this->module->session_api,
+                'response' => $json
+            ]);
+            die;
+        }
         $dato = $json->sessionKey;
+
 
         return $dato;
     }
