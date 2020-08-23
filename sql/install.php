@@ -1,6 +1,6 @@
 <?php
 /**
-* 2007-2016 PrestaShop
+* 2007-2021 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -26,7 +26,7 @@
 
 $sql = array();
 
-$sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'visanetperu_session (
+$sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'niubiz_session (
     id_token INT(11) NOT NULL AUTO_INCREMENT,
     id_cart INT(11),
     id_customer INT(11),
@@ -36,7 +36,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'visanetperu_session (
     PRIMARY KEY (id_token)
 ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
-$sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'visanetperu_log (
+$sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'niubiz_log (
     id_visa INT(11) NOT NULL AUTO_INCREMENT,
     id_order INT(11),
     id_cart INT(11),
@@ -75,7 +75,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'visanetperu_log (
     PRIMARY KEY  (id_visa)
 ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
-$sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'visanetperu_pagoefectivo (
+$sql[] = 'CREATE TABLE IF NOT EXISTS '._DB_PREFIX_.'niubiz_pagoefectivo (
     id INT(11) NOT NULL AUTO_INCREMENT,
     id_order INT(11),
     id_cart INT(11),

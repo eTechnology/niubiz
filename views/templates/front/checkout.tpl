@@ -1,5 +1,5 @@
 {*
-* 2007-2017 PrestaShop
+* 2007-2021 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -27,12 +27,13 @@
 {block name='page_content'}
 
 <div class="text-center">
-    <h2>{l s='Pay with Visa' mod='visanetperu'}</h2>
-    <p>{l s='To confirm your purchase please click on the following button' mod='visanetperu'}</p>
-    <br><br>
+  <h1 class="h1">{l s='Payment confirmation' d='Modules.Niubiz.Checkout'}</h1>
+  <br>
+  <p>{l s='To confirm your purchase please click on the following button' d='Modules.Niubiz.Checkout'}</p>
+    <br>
     <div class="row">
         <div class="col-xs-12 col-md-12">
-            <form action="{$link->getModuleLink('visanetperu', 'return')|escape:'html':'UTF-8'}" method="post">
+            <form action="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}" method="POST">
                 <script src="{$var.urlScript|escape:'html':'UTF-8'}"
                   data-sessiontoken="{$var.sessionToken|escape:'htmlall':'UTF-8'}"
                   data-merchantid="{$var.merchantId|escape:'htmlall':'UTF-8'}"
@@ -55,11 +56,11 @@
                   data-recurrenceamount=""
                   data-documenttype="0"
                   data-documentid=""
-                  data-beneficiaryid="VISANET"
+                  data-beneficiaryid="NIUBIZ"
                   data-productid=""
                   data-phone=""
                   data-expirationminutes='5'
-                  data-timeouturl="{$link->getModuleLink('visanetperu', 'return')|escape:'html':'UTF-8'}"
+                  data-timeouturl="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}"
                 /></script>
             </form>
         </div>
@@ -67,13 +68,10 @@
 </div>
 
 {if $debug > 0}
-    <ul>
-        <li>userTokenId = {$var.userTokenId|escape:'htmlall':'UTF-8'}</li>
-        <li>sessionToken = {$var.sessionToken|escape:'htmlall':'UTF-8'} </li>
-        <li>merchantId = {$var.merchantId|escape:'htmlall':'UTF-8'} </li>
-        <li>numOrden = {$var.numOrden|escape:'htmlall':'UTF-8'} </li>
-        <li>monto = {$var.monto|escape:'htmlall':'UTF-8'} </li>
-    </ul>
+<br>
+<pre>
+{$var|print_r:true}
+</pre>
 {/if}
 
 {/block}

@@ -1,5 +1,5 @@
 {*
-* 2007-2017 PrestaShop
+* 2007-2021 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -26,7 +26,7 @@
 
     <h2 class="text-center">
     {if $status == 'ok'}
-        <b style="color:green">{l s='Your order completed successfully' mod='visanetperu'}</b>
+        <b style="color:green">{l s='Your order completed successfully' d='Modules.Niubiz.Checkout'}</b>
     {else}
         <style>
             #content-hook_order_confirmation,
@@ -34,7 +34,7 @@
                 display: none;
             }
         </style>
-        <b style="color:red">{l s='Your order has NOT been processed ' mod='visanetperu'}</b>
+        <b style="color:red">{l s='Your order has NOT been processed ' d='Modules.Niubiz.Checkout'}</b>
         :: {$result.dsc_cod_accion|escape:'htmlall':'UTF-8'}
     {/if}
     </h2>
@@ -42,27 +42,27 @@
     <div class="row">
         <div class="col-sm-6 col-sm-offset-3 clearfix">
         	<ul style="list-style:none">
-                <li>{l s='Order number' mod='visanetperu'} : {$id_cart|escape:'htmlall':'UTF-8'}</li>
-                <li>{l s='Cardholder Name' mod='visanetperu'} : {$customerName|escape:'htmlall':'UTF-8'}</li>
-                <li>{l s='Marca' mod='visanetperu'} : {$result.dsc_eci|escape:'htmlall':'UTF-8'}</li>
-                <li>{l s='Card' mod='visanetperu'} : {$result.pan|escape:'htmlall':'UTF-8'}</li>
-                <li>{l s='Currency' mod='visanetperu'} : {$moneda|escape:'htmlall':'UTF-8'}</li>
-                <li>{l s='Amount' mod='visanetperu'} : {$total|escape:'htmlall':'UTF-8'}</li>
-                <li>{l s='Rason' mod='visanetperu'} : {$result.dsc_cod_accion|escape:'htmlall':'UTF-8'}</li>
+                <li>{l s='Order number' d='Modules.Niubiz.Checkout'} : {$id_cart|escape:'htmlall':'UTF-8'}</li>
+                <li>{l s='Cardholder Name' d='Modules.Niubiz.Checkout'} : {$customerName|escape:'htmlall':'UTF-8'}</li>
+                <li>{l s='Marca' d='Modules.Niubiz.Checkout'} : {$result.dsc_eci|escape:'htmlall':'UTF-8'}</li>
+                <li>{l s='Card' d='Modules.Niubiz.Checkout'} : {$result.pan|escape:'htmlall':'UTF-8'}</li>
+                <li>{l s='Currency' d='Modules.Niubiz.Checkout'} : {$moneda|escape:'htmlall':'UTF-8'}</li>
+                <li>{l s='Amount' d='Modules.Niubiz.Checkout'} : {$total|escape:'htmlall':'UTF-8'}</li>
+                <li>{l s='Rason' d='Modules.Niubiz.Checkout'} : {$result.dsc_cod_accion|escape:'htmlall':'UTF-8'}</li>
             </ul>
-        
-            <b>{l s='Products' mod='visanetperu'} :</b>
+
+            <b>{l s='Products' d='Modules.Niubiz.Checkout'} :</b>
             {foreach from=$products item=product}
         	<li> {$product.name|escape:'htmlall':'UTF-8'} </li>
         	{/foreach}
             <br>
-            <br />{l s='Save and/or print this information as a transaction receipt. You can also consult our' mod='visanetperu'}
-            <a href="{$link_conditions|escape:'html':'UTF-8'}" class="iframe" data-ajax="false" target="_blank">{l s='Terms of sale' mod='visanetperu'}</a>.
+            <br />{l s='Save and/or print this information as a transaction receipt. You can also consult our' d='Modules.Niubiz.Checkout'}
+            <a href="{$link_conditions|escape:'html':'UTF-8'}" class="iframe" data-ajax="false" target="_blank">{l s='Terms of sale' d='Modules.Niubiz.Checkout'}</a>.
             <br><br>
-            <a href="{$link->getPageLink('history', true)|escape:'htmlall':'UTF-8'}" title="{l s='Mis pedidos' mod='visanetperu'}" data-ajax="false">{l s='View All My Orders' mod='visanetperu'}</a><br />
-        
-        	<br /><br />{l s='To resolve any doubts do not hesitate to contact us' mod='visanetperu'}
-        	<a href="{$link->getPageLink('contact', true)|escape:'htmlall':'UTF-8'}" data-ajax="false" target="_blank">{l s='Customer service' mod='visanetperu'}</a>.
+            <a href="{$link->getPageLink('history', true)|escape:'htmlall':'UTF-8'}" title="{l s='Mis pedidos' d='Modules.Niubiz.Checkout'}" data-ajax="false">{l s='View All My Orders' d='Modules.Niubiz.Checkout'}</a><br />
+
+        	<br /><br />{l s='To resolve any doubts do not hesitate to contact us' d='Modules.Niubiz.Checkout'}
+        	<a href="{$link->getPageLink('contact', true)|escape:'htmlall':'UTF-8'}" data-ajax="false" target="_blank">{l s='Customer service' d='Modules.Niubiz.Checkout'}</a>.
         </div>
     </div>
 

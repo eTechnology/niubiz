@@ -24,10 +24,9 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-class visanetperucheckoutModuleFrontController extends ModuleFrontController
+class NiubizCheckoutModuleFrontController extends ModuleFrontController
 {
-    //public $ssl = true;
-    //public $display_column_left = false;
+    public $ssl = true;
 
     public function initContent()
     {
@@ -51,7 +50,7 @@ class visanetperucheckoutModuleFrontController extends ModuleFrontController
         $session['sessiontoken'] = pSQL($sessionToken);
         $session['sessionkey'] = pSQL($userTokenId);
 
-        Db::getInstance()->insert('visanetperu_session', $session);
+        Db::getInstance()->insert('niubiz_session', $session);
 
         $variables = array(
             'userTokenId' => $userTokenId,
@@ -60,7 +59,6 @@ class visanetperucheckoutModuleFrontController extends ModuleFrontController
             'urlScript' => $this->module->urlScript,
             'numOrden' => (int)$cart->id,
             'monto' => $amount,
-            //'rowT' => $this->module->rowTransaction($customer->id),
         );
 
         $this->context->smarty->assign(array(
@@ -71,15 +69,9 @@ class visanetperucheckoutModuleFrontController extends ModuleFrontController
             'var' => $variables,
         ));
 
-        switch ($this->module->psVersion) {
-            case 1.7:
-                $this->setTemplate('module:visanetperu/views/templates/front/checkout17.tpl');
-                break;
 
-            default:
-                $this->setTemplate('checkout16.tpl');
-                break;
-        }
+        $this->setTemplate('module:niubiz/views/templates/front/checkout.tpl');
+
 }
 
     private function securityKey()

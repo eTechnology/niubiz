@@ -1,5 +1,5 @@
 {*
-* 2007-2017 PrestaShop
+* 2007-2021 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -25,7 +25,7 @@
 
 {if $debug}
 <div class="alert alert-warning" role="alert">
-	VISANETPERU DEBUG ENABLED: <br>
+  Niubiz DEBUG ENABLED: <br>
 	<ul>
 	{if !$acceptedCurrency}
 		<li> No se ha configurado en el modulo los parámetros para {$currency_code}</li>
@@ -37,10 +37,9 @@
 {/if}
 
 {if $acceptedCurrency}
-<p id="visanetperu" class="payment_module">
-	<a href="{$link->getModuleLink('visanetperu', 'checkout')|escape:'html'}" title="{l s='Pay with Visa' mod='visanetperu'}">
-		<img src="{$views|escape:'htmlall':'UTF-8'}img/logo-visa.png" alt="{l s='Pay with Visa' mod='visanetperu'}" width="70" style="margin-right:10px"/>
-		{l s='Pay with Visa' mod='visanetperu'}
+<p id="niubiz" class="payment_module">
+	<a href="{$link->getModuleLink('niubiz', 'checkout')|escape:'html'}" title="{l s='Pay with credit/debid cards' d='Modules.Niubiz.Checkout'}">
+		{l s='Pay with credit/debid cards' d='Modules.Niubiz.Checkout'}
 	</a>
 </p>
 {/if}

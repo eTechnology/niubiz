@@ -1,5 +1,5 @@
 <section>
-    <p>{l s='Aceptamos todas las tarjetas asociadas a Visa, detalles de pago:'}
+    <p>{l s='Aceptamos todas las tarjetas de crédito/débito:'}
     <dl>
         <dt>{l s='Importe'}</dt>
         <dd>{$checkTotal}</dd>

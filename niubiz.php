@@ -1,6 +1,6 @@
 <?php
 /**
-* 2007-2016 PrestaShop
+* 2007-2021 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -24,66 +24,66 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-// IF YOU USE PRESTASHOP 1.7 uncomment below line
- use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
-
-
-class VisaNetPeru extends PaymentModule
+class Niubiz extends PaymentModule
 {
     private $html = '';
     private $postErrors = array();
-
-    public $posWeb = false;
-
     public $merchantid;
-    public $accesskey;
-    public $secretkey;
 
     public $connections = array();
 
     public function __construct()
     {
-        $this->name = 'visanetperu';
+        $this->name = 'niubiz';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.1';
-        $this->bootstrap = true;
+        $this->version = '1.0.0';
+        $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
+        $this->author = "Victor Castro";
+        $this->controllers = array('checkout', 'return');
+
+        $this->currencies = true;
+        $this->currencies_mode = 'checkbox';
+
         $this->views = _MODULE_DIR_.$this->name.'/views/';
         $this->domain = Tools::getShopDomainSsl(true, true).__PS_BASE_URI__;
         $this->url_return = $this->domain.'index.php?fc=module&module='.$this->name.'&controller=notifier';
+        $this->callback = $this->domain.'index.php?fc=module&module='.$this->name.'&controller=callback';
         $this->module_key = '72868a598030b3e8df685fec00b4b8ed';
+        $this->bootstrap = true;
 
         parent::__construct();
 
-        $this->displayName = $this->l('VisaNet Peru');
-        $this->author = "Victor Castro";
+        $this->displayName = 'Niubiz';
         $this->email = "victor@castrocontreras.com";
-        $this->website = "www.castrocontreras.com";
-        $this->description = $this->l('Accept payments with Visa on Peru. Ahora aceptamos Visa, Mastercard, Amex y Diners');
-        $this->confirmUninstall = $this->l('Are your sure?');
+        $this->github = "https://github.com/victorcastro";
+        $this->description = $this->trans('Accept payments with Credit card and PagoEfectivo', array(), 'Modules.Niubiz.Admin');
+        $this->confirmUninstall = $this->trans('Are your sure?', array(), 'Modules.Niubiz.Admin');
         $this->acceptedCurrency = [];
         $this->psVersion = round(_PS_VERSION_, 1);
 
         if (function_exists('curl_init') == false) {
-            $this->warning = $this->l('In order to use this module, activate cURL (PHP extension).');
+            $this->warning = $this->trans('In order to use this module, activate cURL (PHP extension).', array(), 'Modules.Niubiz.Admin');
         }
 
         $currency = new Currency($this->context->cookie->id_currency);
 
         switch ($currency->iso_code) {
             case 'PEN':
-                $this->merchantid = Configuration::get('VSA_MERCHANTID_PEN');
-                $this->vsauser = Configuration::get('VSA_USER_PEN');
-                $this->vsapassword = Configuration::get('VSA_PASSWORD_PEN');
+                $this->merchantid = Configuration::get('NBZ_MERCHANTID_PEN');
+                $this->vsauser = Configuration::get('NBZ_USER_PEN');
+                $this->vsapassword = Configuration::get('NBZ_PASSWORD_PEN');
                 break;
 
             case 'USD':
-                $this->merchantid = Configuration::get('VSA_MERCHANTID_USD');
-                $this->vsauser = Configuration::get('VSA_USER_USD');
-                $this->vsapassword = Configuration::get('VSA_PASSWORD_USD');
+                $this->merchantid = Configuration::get('NBZ_MERCHANTID_USD');
+                $this->vsauser = Configuration::get('NBZ_USER_USD');
+                $this->vsapassword = Configuration::get('NBZ_PASSWORD_USD');
                 break;
 
             default:
@@ -93,7 +93,7 @@ class VisaNetPeru extends PaymentModule
                 break;
         }
 
-        switch (Configuration::get('VSA_ENVIROMENT')) {
+        switch (Configuration::get('NBZ_ENVIROMENT')) {
             case 'PRD':
                 $this->security_api = 'https://apiprod.vnforapps.com/api.security/v1/security';
                 $this->session_api = 'https://apiprod.vnforapps.com/api.ecommerce/v2/ecommerce/token/session/'.$this->merchantid;
@@ -115,13 +115,12 @@ class VisaNetPeru extends PaymentModule
         include(dirname(__FILE__).'/sql/install.php');
 
         $link = new Link;
-        Configuration::updateValue('VSA_LOGO', $link->getMediaLink(_PS_IMG_.Configuration::get('PS_LOGO')));
+        Configuration::updateValue('NBZ_LOGO', $link->getMediaLink(_PS_IMG_.Configuration::get('PS_LOGO')));
 
         if (!parent::install()
             || !$this->registerHook('payment')
             || !$this->registerHook('paymentReturn')
             || !$this->registerHook('paymentOptions')
-            //|| !$this->registerHook('displayAdminOrderLeft')
             ) {
                 return false;
         }
@@ -131,18 +130,23 @@ class VisaNetPeru extends PaymentModule
 
     public function uninstall()
     {
-        if (!Configuration::deleteByName('VSA_LOGO')
-         || !Configuration::deleteByName('VSA_MERCHANTID_PEN')
-         || !Configuration::deleteByName('VSA_USER_PEN')
-         || !Configuration::deleteByName('VSA_PASSWORD_PEN')
-         || !Configuration::deleteByName('VSA_MERCHANTID_USD')
-         || !Configuration::deleteByName('VSA_ACCESSKEY_USD')
-         || !Configuration::deleteByName('VSA_SECRETKEY_USD')
+        if (!Configuration::deleteByName('NBZ_LOGO')
+         || !Configuration::deleteByName('NBZ_MERCHANTID_PEN')
+         || !Configuration::deleteByName('NBZ_USER_PEN')
+         || !Configuration::deleteByName('NBZ_PASSWORD_PEN')
+         || !Configuration::deleteByName('NBZ_MERCHANTID_USD')
+         || !Configuration::deleteByName('NBZ_ACCESSKEY_USD')
+         || !Configuration::deleteByName('NBZ_SECRETKEY_USD')
          || !parent::uninstall()) {
             return false;
         }
 
         return parent::uninstall();
+    }
+
+    public function isUsingNewTranslationSystem()
+    {
+        return true;
     }
 
     protected function displayConfiguration()
@@ -172,18 +176,18 @@ class VisaNetPeru extends PaymentModule
 
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->l('GENERAL CONFIGURATION'),
+                'title' => $this->trans('GENERAL CONFIGURATION', array(), 'Modules.Niubiz.Admin'),
                 'icon' => 'icon-bug'
             ),
             'input' => array(
                 array(
                     'type' => 'select',
-                    'label'=>  $this->l('Ambiente'),
-                    'name' => 'VSA_ENVIROMENT',
+                    'label'=>  $this->trans('Enviroment', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_ENVIROMENT',
                     'options' => array(
                         'query' => array(
-                            array('id' => 'DEV', 'name' => $this->l('Development')),
-                            array('id' => 'PRD', 'name' => $this->l('Production')),
+                            array('id' => 'DEV', 'name' => $this->trans('Integration', array(), 'Modules.Niubiz.Admin')),
+                            array('id' => 'PRD', 'name' => $this->trans('Production', array(), 'Modules.Niubiz.Admin')),
                         ),
                         'id' => 'id',
                         'name' => 'name'
@@ -191,123 +195,123 @@ class VisaNetPeru extends PaymentModule
                 ),
                 array(
                     'type' => 'switch',
-                    'label' => $this->l('Debugger'),
-                    'name' => 'VSA_DEBUG',
+                    'label' => $this->trans('Debugger', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_DEBUG',
                     'values' => array(
                         array(
                             'id' => 'active_on',
                             'value' => 1,
-                            'label' => $this->l('Enabled')
+                            'label' => $this->trans('Enabled', array(), 'Modules.Niubiz.Admin')
                         ),
                         array(
                             'id' => 'active_off',
                             'value' => 0,
-                            'label' => $this->l('Disabled')
+                            'label' => $this->trans('Disabled', array(), 'Modules.Niubiz.Admin')
                         )
                     ),
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->l('URL de Logo'),
-                    'name' => 'VSA_LOGO',
+                    'label' => $this->trans('Logo URL', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_LOGO',
                     'required' => true,
                 ),
             ),
             'submit' => array(
-                'title' => $this->l('Guardar'),
+                'title' => $this->trans('Save', array(), 'Modules.Niubiz.Admin'),
             )
         );
 
         $fields_form[1]['form'] = array(
             'legend' => array(
-                'title' => $this->l('SOLES CONFIGURATION'),
+                'title' => $this->trans('SOLES CONFIGURATION', array(), 'Modules.Niubiz.Admin'),
             ),
             'input' => array(
                 array(
                     'type' => 'switch',
-                    'label' => $this->l('Activo'),
-                    'name' => 'VSA_PEN',
+                    'label' => $this->trans('Active', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_PEN',
                     'values' => array(
                         array(
                             'id' => 'active_on',
                             'value' => 1,
-                            'label' => $this->l('Enabled')
+                            'label' => $this->trans('Enabled', array(), 'Modules.Niubiz.Admin')
                         ),
                         array(
                             'id' => 'active_off',
                             'value' => 0,
-                            'label' => $this->l('Disabled')
+                            'label' => $this->trans('Disabled', array(), 'Modules.Niubiz.Admin')
                         )
                     ),
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Comercio'),
-                    'name' => 'VSA_MERCHANTID_PEN',
+                    'label' => $this->trans('Commerce', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_MERCHANTID_PEN',
                     'required' => false
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Usuario'),
-                    'name' => 'VSA_USER_PEN',
+                    'label' => $this->trans('Email', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_USER_PEN',
                     'required' => false
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Password'),
-                    'name' => 'VSA_PASSWORD_PEN',
+                    'label' => $this->trans('Password', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_PASSWORD_PEN',
                     'required' => false
                 ),
             ),
             'submit' => array(
-                'title' => $this->l('Save Soles'),
+                'title' => $this->trans('Save', array(), 'Modules.Niubiz.Admin'),
             )
         );
 
         $fields_form[2]['form'] = array(
             'legend' => array(
-                'title' => $this->l('DOLARES CONFIGURATION'),
+                'title' => $this->trans('DOLARES CONFIGURATION', array(), 'Modules.Niubiz.Admin'),
 
             ),
             'input' => array(
                 array(
                     'type' => 'switch',
-                    'label' => $this->l('Activo'),
-                    'name' => 'VSA_USD',
+                    'label' => $this->trans('Active', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_USD',
                     'values' => array(
                         array(
                             'id' => 'active_on',
                             'value' => 1,
-                            'label' => $this->l('Enabled')
+                            'label' => $this->trans('Enabled', array(), 'Modules.Niubiz.Admin')
                         ),
                         array(
                             'id' => 'active_off',
                             'value' => 0,
-                            'label' => $this->l('Disabled')
+                            'label' => $this->trans('Disabled', array(), 'Modules.Niubiz.Admin')
                         )
                     ),
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Comercio'),
-                    'name' => 'VSA_MERCHANTID_USD',
+                    'label' => $this->trans('Commerce', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_MERCHANTID_USD',
                     'required' => false
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Usuario'),
-                    'name' => 'VSA_USER_USD',
+                    'label' => $this->trans('Email', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_USER_USD',
                     'required' => false
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Password'),
-                    'name' => 'VSA_PASSWORD_USD',
+                    'label' => $this->trans('Password', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_PASSWORD_USD',
                     'required' => false
                 ),
             ),
             'submit' => array(
-                'title' => $this->l('Save Soles'),
+                'title' => $this->trans('Save', array(), 'Modules.Niubiz.Admin'),
             )
         );
 
@@ -339,17 +343,17 @@ class VisaNetPeru extends PaymentModule
     protected function getConfigFormValues()
     {
         return array(
-            'VSA_DEBUG' => Tools::getValue('VSA_DEBUG', Configuration::get('VSA_DEBUG')),
-            'VSA_LOGO' => Tools::getValue('VSA_LOGO', Configuration::get('VSA_LOGO')),
-            'VSA_ENVIROMENT' => Tools::getValue('VSA_ENVIROMENT', Configuration::get('VSA_ENVIROMENT')),
-            'VSA_MERCHANTID_PEN' => Tools::getValue('VSA_MERCHANTID_PEN', trim(Configuration::get('VSA_MERCHANTID_PEN'))),
-            'VSA_USER_PEN' => Tools::getValue('VSA_USER_PEN', trim(Configuration::get('VSA_USER_PEN'))),
-            'VSA_PASSWORD_PEN' => Tools::getValue('VSA_PASSWORD_PEN', trim(Configuration::get('VSA_PASSWORD_PEN'))),
-            'VSA_MERCHANTID_USD' => Tools::getValue('VSA_MERCHANTID_USD', trim(Configuration::get('VSA_MERCHANTID_USD'))),
-            'VSA_USER_USD' => Tools::getValue('VSA_USER_USD', trim(Configuration::get('VSA_USER_USD'))),
-            'VSA_PASSWORD_USD' => Tools::getValue('VSA_PASSWORD_USD', Configuration::get('VSA_PASSWORD_USD')),
-            'VSA_PEN' => Tools::getValue('VSA_PEN', Configuration::get('VSA_PEN')),
-            'VSA_USD' => Tools::getValue('VSA_USD', Configuration::get('VSA_USD')),
+            'NBZ_DEBUG' => Tools::getValue('NBZ_DEBUG', Configuration::get('NBZ_DEBUG')),
+            'NBZ_LOGO' => Tools::getValue('NBZ_LOGO', Configuration::get('NBZ_LOGO')),
+            'NBZ_ENVIROMENT' => Tools::getValue('NBZ_ENVIROMENT', Configuration::get('NBZ_ENVIROMENT')),
+            'NBZ_MERCHANTID_PEN' => Tools::getValue('NBZ_MERCHANTID_PEN', trim(Configuration::get('NBZ_MERCHANTID_PEN'))),
+            'NBZ_USER_PEN' => Tools::getValue('NBZ_USER_PEN', trim(Configuration::get('NBZ_USER_PEN'))),
+            'NBZ_PASSWORD_PEN' => Tools::getValue('NBZ_PASSWORD_PEN', trim(Configuration::get('NBZ_PASSWORD_PEN'))),
+            'NBZ_MERCHANTID_USD' => Tools::getValue('NBZ_MERCHANTID_USD', trim(Configuration::get('NBZ_MERCHANTID_USD'))),
+            'NBZ_USER_USD' => Tools::getValue('NBZ_USER_USD', trim(Configuration::get('NBZ_USER_USD'))),
+            'NBZ_PASSWORD_USD' => Tools::getValue('NBZ_PASSWORD_USD', Configuration::get('NBZ_PASSWORD_USD')),
+            'NBZ_PEN' => Tools::getValue('NBZ_PEN', Configuration::get('NBZ_PEN')),
+            'NBZ_USD' => Tools::getValue('NBZ_USD', Configuration::get('NBZ_USD')),
             'FREE' => Tools::getValue('FREE', Configuration::get('FREE')),
         );
     }
@@ -359,8 +363,8 @@ class VisaNetPeru extends PaymentModule
         $errors = array();
 
         if (Tools::isSubmit('btnSubmit')) {
-            if (empty(Tools::getValue('VSA_LOGO'))) {
-                $errors[] = $this->l('El Logo de visa es obligatorio');
+            if (empty(Tools::getValue('NBZ_LOGO'))) {
+                $errors[] = $this->trans('El Logo de visa es obligatorio');
             }
         }
 
@@ -375,37 +379,37 @@ class VisaNetPeru extends PaymentModule
     private function postProcess()
     {
         if (Tools::isSubmit('btnSubmit')) {
-            Configuration::updateValue('VSA_LOGO', Tools::getValue('VSA_LOGO'));
-            Configuration::updateValue('VSA_ENVIROMENT', Tools::getValue('VSA_ENVIROMENT'));
-            Configuration::updateValue('VSA_DEBUG', Tools::getValue('VSA_DEBUG'));
-            Configuration::updateValue('VSA_MERCHANTID_PEN', Tools::getValue('VSA_MERCHANTID_PEN'));
-            Configuration::updateValue('VSA_USER_PEN', Tools::getValue('VSA_USER_PEN'));
-            Configuration::updateValue('VSA_PASSWORD_PEN', Tools::getValue('VSA_PASSWORD_PEN'));
-            Configuration::updateValue('VSA_MERCHANTID_USD', Tools::getValue('VSA_MERCHANTID_USD'));
-            Configuration::updateValue('VSA_USER_USD', Tools::getValue('VSA_USER_USD'));
-            Configuration::updateValue('VSA_PASSWORD_USD', Tools::getValue('VSA_PASSWORD_USD'));
-            Configuration::updateValue('VSA_PEN', Tools::getValue('VSA_PEN'));
-            Configuration::updateValue('VSA_USD', Tools::getValue('VSA_USD'));
+            Configuration::updateValue('NBZ_LOGO', Tools::getValue('NBZ_LOGO'));
+            Configuration::updateValue('NBZ_ENVIROMENT', Tools::getValue('NBZ_ENVIROMENT'));
+            Configuration::updateValue('NBZ_DEBUG', Tools::getValue('NBZ_DEBUG'));
+            Configuration::updateValue('NBZ_MERCHANTID_PEN', Tools::getValue('NBZ_MERCHANTID_PEN'));
+            Configuration::updateValue('NBZ_USER_PEN', Tools::getValue('NBZ_USER_PEN'));
+            Configuration::updateValue('NBZ_PASSWORD_PEN', Tools::getValue('NBZ_PASSWORD_PEN'));
+            Configuration::updateValue('NBZ_MERCHANTID_USD', Tools::getValue('NBZ_MERCHANTID_USD'));
+            Configuration::updateValue('NBZ_USER_USD', Tools::getValue('NBZ_USER_USD'));
+            Configuration::updateValue('NBZ_PASSWORD_USD', Tools::getValue('NBZ_PASSWORD_USD'));
+            Configuration::updateValue('NBZ_PEN', Tools::getValue('NBZ_PEN'));
+            Configuration::updateValue('NBZ_USD', Tools::getValue('NBZ_USD'));
         }
 
-        $this->html .= $this->displayConfirmation($this->l('Guardado Correctamente'));
+        $this->html .= $this->displayConfirmation($this->trans('Guardado Correctamente'));
     }
 
     public function hookPayment($params)
     {
-        if (Configuration::get('VSA_USD'))
+        if (Configuration::get('NBZ_USD'))
             $this->acceptedCurrency[] = 'USD';
-        if (Configuration::get('VSA_PEN'))
+        if (Configuration::get('NBZ_PEN'))
             $this->acceptedCurrency[] = 'PEN';
 
         $currency = new Currency($this->context->cookie->id_currency);
-        $this->context->controller->addCSS($this->_path.'/views/css/visanetperu.css');
+        $this->context->controller->addCSS($this->_path.'/views/css/niubiz.css');
 
         $this->context->smarty->assign(array(
             'views' => $this->views,
             'currency_code' => $currency->iso_code,
             'acceptedCurrency' => in_array($currency->iso_code, $this->acceptedCurrency),
-            'debug' => Configuration::get('VSA_DEBUG')
+            'debug' => Configuration::get('NBZ_DEBUG')
         ));
 
         return $this->display(__FILE__, 'payment.tpl');
@@ -422,7 +426,7 @@ class VisaNetPeru extends PaymentModule
         }
 
         $payment_options = array(
-            'cta_text' => $this->l('Pay with  Visa'),
+            'cta_text' => $this->trans('Pay with credit/debit card'),
             'logo' => $this->views.'img/logo-visanet.png',
             'action' => $this->context->link->getModuleLink($this->name, 'checkout', array(), true)
         );
@@ -492,15 +496,6 @@ class VisaNetPeru extends PaymentModule
         return $this->display(__FILE__, 'confirmation.tpl');
     }
 
-    public function hookFooter()
-    {
-        $this->context->smarty->assign(array(
-            'views' => $this->views,
-        ));
-
-        return $this->display(__FILE__, 'footer.tpl');
-    }
-
     public function hookdisplayAdminOrderLeft()
     {
         $order_current = Tools::getValue('id_order');
@@ -535,10 +530,10 @@ class VisaNetPeru extends PaymentModule
 
         $newOption = new PaymentOption();
         $newOption->setModuleName($this->name)
-            ->setLogo(Media::getMediaPath(dirname(__FILE__).'/views/img/visanet-paymentoptions.jpg'))
-            ->setCallToActionText($this->trans('Visanet Perú'))
+            ->setLogo(Media::getMediaPath(dirname(__FILE__).'/views/img/paymentoptions.jpg'))
+            ->setCallToActionText($this->trans('Pay with credit/debid card'))
             ->setAction($this->context->link->getModuleLink($this->name, 'checkout', array(), true))
-            ->setAdditionalInformation($this->fetch('module:visanetperu/views/templates/hook/paymentoption.tpl'));
+            ->setAdditionalInformation($this->fetch('module:niubiz/views/templates/hook/paymentoption.tpl'));
         $payment_options = [
             $newOption,
         ];
@@ -550,7 +545,7 @@ class VisaNetPeru extends PaymentModule
     {
         $sql = 'SELECT c.id_customer, v.aliasname, v.date_add, v.usertokenuuid
             FROM '._DB_PREFIX_.'customer c
-            INNER JOIN '._DB_PREFIX_.'visanetperu_log v ON c.id_customer = v.id_customer
+            INNER JOIN '._DB_PREFIX_.'niubiz_log v ON c.id_customer = v.id_customer
             AND c.id_customer = '.$id_customer.'
             ORDER BY date_add DESC';
 

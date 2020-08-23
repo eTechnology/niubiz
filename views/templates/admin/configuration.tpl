@@ -39,11 +39,11 @@
 
 <div class="panel" id="fieldset_0_0" style="display:none">
 	<div class="panel-heading">
-		<i class="icon-medkit"></i> {l s='SUPPORT AND GUARANTEE' mod='visanetperu'}
+		<i class="icon-medkit"></i> {l s='SUPPORT AND GUARANTEE' d='Modules.Niubiz.Checkout'}
 	</div>
 	<div class="form-wrapper">
 		<div class="form-group">
-			<p> {l s='This module was developed by Victor Castro, for support you can contact in victor@castrocontreras.com or entry to' mod='visanetperu'}: <a href="http://www.castrocontreras.com" target="_blank">www.castrocontreras.com</a></p>
+			<p> {l s='This module was developed by Victor Castro, for support you can contact in victor@castrocontreras.com or entry to' d='Modules.Niubiz.Checkout'}: <a href="http://www.castrocontreras.com" target="_blank">www.castrocontreras.com</a></p>
 		</div>
 	</div>
 </div>

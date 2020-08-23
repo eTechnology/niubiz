@@ -1,4 +1,4 @@
-MODULO DE INTEGRACIÓN CON VISA
+MODULO DE INTEGRACIÓN CON NIUBIZ
 ===============================
 
 Este modulo provee la integración a un servicio de pagos en Internet con tarjeta VISA y es utilizado como un apoyo a las soluciones de comercio electrónico pero no sólo permite esta separación lógica y dedicación de recursos, también aumenta la seguridad y protege a los comercios entre sí mediante la autenticación y el control de acceso.
@@ -6,15 +6,16 @@ Este modulo provee la integración a un servicio de pagos en Internet con tarjet
 ----------
 
 4072 2102 9053 6663
-03/2018 377
+03/2025 377
 
 4919 1481 0785 9067
-03/2018 377
+03/2025 377
 
 4500 3400 9000 0016
-03/2018 377
+03/2025 377
 
 Además, para hacer transacciones denegadas, puedes hacer lo siguiente:
+
 · Utilizar una tarjeta no inválida. Ej, 4444 – 3333 – 2222 – 1111.
 
 · Hacer clic en cancelar en lugar de pagar.
@@ -47,15 +48,6 @@ Documents
 - Activar el modo DEbur para verificar el flujo de comunicacion
 - Realizar una compra de prueba
 - Si todo va OK, desactivar el modo DEBUG.
-
-##### DEMO
-Accesos al backoffice de pruebas:
-
-```sh
-http://prestashop.cms.victorcastro.io/shop/1.6
-Cliente: demo@demo.com
-Password: demodemo
-```
 
 
 ##### **SOPORTE:**

@@ -3,7 +3,7 @@
 #
 # @author Victor Castro Contreras
 # @mail victor@castrocontreras.com
-# @web www.castrocontreras.com
+# @github https://github.com/victorcastro
 
 
 # Directories
@@ -15,3 +15,5 @@ config.xml
 
 # Extensions
 *.css.map
+
+.DS_Store

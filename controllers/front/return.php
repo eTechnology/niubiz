@@ -1,6 +1,6 @@
 <?php
 /**
-* 2007-2016 PrestaShop
+* 2007-2021 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-class VisaNETPeruReturnModuleFrontController extends ModuleFrontController
+class NiubizReturnModuleFrontController extends ModuleFrontController
 {
     public $ssl = true;
     public $display_column_left = false;
@@ -50,14 +50,14 @@ class VisaNETPeruReturnModuleFrontController extends ModuleFrontController
         $authorized = false;
 
         foreach (Module::getPaymentModules() as $module) {
-            if ($module['name'] == 'visanetperu') {
+            if ($module['name'] == 'niubiz') {
                 $authorized = true;
                 break;
             }
         }
 
         if (!$authorized) {
-            die($this->module->l('This payment method is not available.', 'validation'));
+            die($this->module->trans('This payment method is not available.', [], 'Modules.Niubiz.Return'));
         }
 
         if (!Validate::isLoadedObject($customer)) {
@@ -94,7 +94,7 @@ class VisaNETPeruReturnModuleFrontController extends ModuleFrontController
 
         if ($ps_os_payment == Configuration::get('PS_CHECKOUT_STATE_WAITING_CAPTURE')) {
             $sal['data']['id_order'] = (int)$order->id;
-            Db::getInstance()->insert('visanetperu_pagoefectivo', [
+            Db::getInstance()->insert('niubiz_pagoefectivo', [
                 'id_order' => (int)$order->id,
                 'id_cart' => (int)$cart->id,
                 'id_customer' => (int)$customer->id,
@@ -113,7 +113,7 @@ class VisaNETPeruReturnModuleFrontController extends ModuleFrontController
             $sal['data']['transactionToken'] = pSQL($transactionToken);
             $sal['data']['aliasName'] = pSQL($respuesta[$dataInput]['SIGNATURE']);
             $sal['data']['id_order'] = (int)$order->id;
-            Db::getInstance()->insert('visanetperu_log', $sal['data']);
+            Db::getInstance()->insert('niubiz_log', $sal['data']);
 
             $rdc = 'index.php?controller=order-confirmation&id_cart='.(int)$cart->id.'&id_module='.(int)$this->module->id;
 
