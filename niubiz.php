@@ -216,6 +216,13 @@ class Niubiz extends PaymentModule
                     'name' => 'NBZ_LOGO',
                     'required' => true,
                 ),
+                array(
+                    'type' => 'text',
+                    'label' => $this->trans('URL PagoEfectivo', array(), 'Modules.Niubiz.Admin'),
+                    'desc' => $this->trans('Send this url to Niubiz to capture the remote payment of PagoEfectivo.', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_CALLBACK',
+                    'required' => false,
+                ),
             ),
             'submit' => array(
                 'title' => $this->trans('Save', array(), 'Modules.Niubiz.Admin'),
@@ -315,7 +322,6 @@ class Niubiz extends PaymentModule
             )
         );
 
-
         $emplFormLang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG');
 
         $helper = new HelperForm();
@@ -355,6 +361,7 @@ class Niubiz extends PaymentModule
             'NBZ_PEN' => Tools::getValue('NBZ_PEN', Configuration::get('NBZ_PEN')),
             'NBZ_USD' => Tools::getValue('NBZ_USD', Configuration::get('NBZ_USD')),
             'FREE' => Tools::getValue('FREE', Configuration::get('FREE')),
+            'NBZ_CALLBACK' => Tools::getValue('NBZ_CALLBACK', $this->callback),
         );
     }
 
@@ -390,6 +397,7 @@ class Niubiz extends PaymentModule
             Configuration::updateValue('NBZ_PASSWORD_USD', Tools::getValue('NBZ_PASSWORD_USD'));
             Configuration::updateValue('NBZ_PEN', Tools::getValue('NBZ_PEN'));
             Configuration::updateValue('NBZ_USD', Tools::getValue('NBZ_USD'));
+            Configuration::updateValue('NBZ_CALLBACK', $this->callback);
         }
 
         $this->html .= $this->displayConfirmation($this->trans('Guardado Correctamente'));
@@ -440,8 +448,6 @@ class Niubiz extends PaymentModule
             return;
         }
 
-        //print_r($params);
-        //die;
         switch ($this->psVersion) {
             case 1.7:
                 $cart = new Cart($params['order']->id_cart);
@@ -494,24 +500,6 @@ class Niubiz extends PaymentModule
         ));
 
         return $this->display(__FILE__, 'confirmation.tpl');
-    }
-
-    public function hookdisplayAdminOrderLeft()
-    {
-        $order_current = Tools::getValue('id_order');
-        $sql_1 = 'SELECT COUNT(*) FROM '._DB_PREFIX_.$this->name.'_log WHERE id_order='.$order_current;
-        $order_bd = Db::getInstance()->getValue($sql_1);
-
-        $sql_2 = 'SELECT * FROM '._DB_PREFIX_.$this->name.'_log WHERE id_order='.$order_current;
-        $results = Db::getInstance()->ExecuteS($sql_2);
-
-        $this->context->smarty->assign(array(
-            'order_current' => $order_current,
-            'order_bd' => array($order_bd),
-            'results' => array($results),
-            'views' => $this->views,
-        ));
-        return $this->display(__FILE__, 'displayAdminOrder.tpl');
     }
 
     public function hookPaymentOptions($params)

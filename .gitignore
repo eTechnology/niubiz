@@ -17,3 +17,5 @@ config.xml
 *.css.map
 
 .DS_Store
+logs/index.php!
+logs/*

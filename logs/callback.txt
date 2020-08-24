@@ -1,0 +1,6 @@
+{
+    "operationNumber": "839d8cd1-baab-43d7-8e91-e1e11aae8194",
+    "cip": "2560471",
+    "status": "Expired",
+    "amount": "34.80"
+}
