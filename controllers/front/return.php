@@ -71,7 +71,7 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
         $sal = [];
 
         if (isset($_POST['transactionToken']) && isset($_POST['url'])) {
-            $ps_os_payment = Configuration::get('PS_CHECKOUT_STATE_WAITING_CAPTURE');
+            $ps_os_payment = Configuration::get('NBZ_STATE_WAITING_CAPTURE');
         } else if (isset($respuesta[$dataInput]) && $respuesta[$dataInput]['ACTION_CODE'] == "000") {
             $ps_os_payment = Configuration::get('PS_OS_PAYMENT');
         } else {
@@ -85,7 +85,7 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
 
         $order = new Order($this->module->currentOrder);
 
-        if ($ps_os_payment == Configuration::get('PS_CHECKOUT_STATE_WAITING_CAPTURE')) {
+        if ($ps_os_payment == Configuration::get('NBZ_STATE_WAITING_CAPTURE')) {
             $sal['data']['id_order'] = (int)$order->id;
             $urlPagoEfectivo = Tools::getValue('url');
             $explodeUrlPagoEfectivo = explode('/', $urlPagoEfectivo);

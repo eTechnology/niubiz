@@ -42,7 +42,7 @@ class Niubiz extends PaymentModule
     {
         $this->name = 'niubiz';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
         $this->author = "Victor Castro";
         $this->controllers = array('checkout', 'return');
@@ -130,6 +130,8 @@ class Niubiz extends PaymentModule
 
     public function uninstall()
     {
+        $this->createState();
+
         if (!Configuration::deleteByName('NBZ_LOGO')
          || !Configuration::deleteByName('NBZ_MERCHANTID_PEN')
          || !Configuration::deleteByName('NBZ_USER_PEN')
@@ -142,6 +144,28 @@ class Niubiz extends PaymentModule
         }
 
         return parent::uninstall();
+    }
+
+    private function createState()
+    {
+        if (!Configuration::get('NBZ_STATE_WAITING_CAPTURE')) {
+            $order_state = new OrderState();
+            $order_state->name = array();
+            foreach (Language::getLanguages() as $language) {
+              $order_state->name[$language['id_lang']] = 'En espera de pago por Niubiz';
+            }
+            $order_state->module_name = $this->name;
+            $order_state->color = '#4169E1';
+            $order_state->send_email = false;
+            $order_state->hidden = false;
+            $order_state->paid = false;
+            $order_state->delivery = false;
+            $order_state->logable = false;
+            $order_state->invoice = false;
+            $order_state->pdf_invoice = false;
+            $order_state->add();
+            Configuration::updateValue('NBZ_STATE_WAITING_CAPTURE', (int)$order_state->id);
+        }
     }
 
     public function isUsingNewTranslationSystem()
