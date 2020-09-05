@@ -114,6 +114,8 @@ class Niubiz extends PaymentModule
     {
         include(dirname(__FILE__).'/sql/install.php');
 
+        $this->createState();
+
         $link = new Link;
         Configuration::updateValue('NBZ_LOGO', $link->getMediaLink(_PS_IMG_.Configuration::get('PS_LOGO')));
 
@@ -121,6 +123,7 @@ class Niubiz extends PaymentModule
             || !$this->registerHook('payment')
             || !$this->registerHook('paymentReturn')
             || !$this->registerHook('paymentOptions')
+            || !$this->installFixtures()
             ) {
                 return false;
         }
@@ -130,9 +133,9 @@ class Niubiz extends PaymentModule
 
     public function uninstall()
     {
-        $this->createState();
-
         if (!Configuration::deleteByName('NBZ_LOGO')
+        || !Configuration::deleteByName('NBZ_PAYMENT_OPTION_TEXT')
+        || !Configuration::deleteByName('NBZ_PAYMENT_OPTION_LOGO')
          || !Configuration::deleteByName('NBZ_MERCHANTID_PEN')
          || !Configuration::deleteByName('NBZ_USER_PEN')
          || !Configuration::deleteByName('NBZ_PASSWORD_PEN')
@@ -144,6 +147,32 @@ class Niubiz extends PaymentModule
         }
 
         return parent::uninstall();
+    }
+
+    protected function installFixtures()
+    {
+        $languages = Language::getLanguages(false);
+
+        $filename = md5('options_cards').'.png';
+
+        if (copy(dirname(__FILE__).DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.'options_cards.png', dirname(__FILE__).DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$filename)) {
+          foreach ($languages as $lang) {
+              $this->installFixture((int)$lang['id_lang'], $filename);
+          }
+
+          return true;
+        }
+
+        return false;
+    }
+
+    protected function installFixture($id_lang, $image = null)
+    {
+        $values['NBZ_PAYMENT_OPTION_TEXT'][(int)$id_lang] = 'Page con Visa, Mastercard o PagoEfectivo';
+        $values['NBZ_PAYMENT_OPTION_LOGO'][(int)$id_lang] = $image;
+
+        Configuration::updateValue('NBZ_PAYMENT_OPTION_TEXT', $values['NBZ_PAYMENT_OPTION_TEXT']);
+        Configuration::updateValue('NBZ_PAYMENT_OPTION_LOGO', $values['NBZ_PAYMENT_OPTION_LOGO']);
     }
 
     private function createState()
@@ -200,8 +229,49 @@ class Niubiz extends PaymentModule
 
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->trans('GENERAL CONFIGURATION', array(), 'Modules.Niubiz.Admin'),
-                'icon' => 'icon-bug'
+                'title' => $this->trans('FRONT CONFIGURATION', array(), 'Modules.Niubiz.Admin'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
+                array(
+                    'type' => 'text',
+                    'label' => $this->trans('Nombre de pago', array(), 'Modules.Niubiz.Admin'),
+                    'desc' => $this->trans('Nombre que saldra en las opciones de pago', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_PAYMENT_OPTION_TEXT',
+                    'required' => true,
+                    'lang' => true,
+                ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->trans('Mostrar logo', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_PAYMENT_OPTION_LOGO_SHOW',
+                    'values' => array(
+                        array(
+                            'id' => 'active_on',
+                            'value' => 1,
+                            'label' => $this->trans('Enabled', array(), 'Modules.Niubiz.Admin')
+                        ),
+                        array(
+                            'id' => 'active_off',
+                            'value' => 0,
+                            'label' => $this->trans('Disabled', array(), 'Modules.Niubiz.Admin')
+                        )
+                    ),
+                ),
+                array(
+                    'type' => 'file_lang',
+                    'label' => $this->trans('Logo de pago', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_PAYMENT_OPTION_LOGO',
+                    'desc' => 'Si estás usando el tema predeterminado las dimensiones recomendadas son 26x220 px.',
+                    'lang' => true,
+                ),
+            ),
+        );
+
+        $fields_form[1]['form'] = array(
+            'legend' => array(
+                'title' => $this->trans('Configuracion de Modal', array(), 'Modules.Niubiz.Admin'),
+                'icon' => 'icon-credit-card'
             ),
             'input' => array(
                 array(
@@ -253,7 +323,7 @@ class Niubiz extends PaymentModule
             )
         );
 
-        $fields_form[1]['form'] = array(
+        $fields_form[2]['form'] = array(
             'legend' => array(
                 'title' => $this->trans('SOLES CONFIGURATION', array(), 'Modules.Niubiz.Admin'),
             ),
@@ -299,7 +369,7 @@ class Niubiz extends PaymentModule
             )
         );
 
-        $fields_form[2]['form'] = array(
+        $fields_form[3]['form'] = array(
             'legend' => array(
                 'title' => $this->trans('DOLARES CONFIGURATION', array(), 'Modules.Niubiz.Admin'),
 
@@ -346,22 +416,23 @@ class Niubiz extends PaymentModule
             )
         );
 
+        $lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));
         $emplFormLang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG');
+        $this->fields_form = array();
 
         $helper = new HelperForm();
         $helper->show_toolbar = false;
         $helper->table = $this->table;
-        $lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));
+        $helper->module = $this;
         $helper->default_form_language = $lang->id;
         $helper->allow_employee_form_lang = $emplFormLang ? $emplFormLang : 0;
-        $this->fields_form = array();
         $helper->id = (int)Tools::getValue('id_carrier');
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'btnSubmit';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.
-            $this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
         $helper->tpl_vars = array(
+            'uri' => $this->getPathUri(),
             'fields_value' => $this->getConfigFormValues(),
             'languages' => $this->context->controller->getLanguages(),
             'id_language' => $this->context->language->id
@@ -372,21 +443,30 @@ class Niubiz extends PaymentModule
 
     protected function getConfigFormValues()
     {
-        return array(
-            'NBZ_DEBUG' => Tools::getValue('NBZ_DEBUG', Configuration::get('NBZ_DEBUG')),
-            'NBZ_LOGO' => Tools::getValue('NBZ_LOGO', Configuration::get('NBZ_LOGO')),
-            'NBZ_ENVIROMENT' => Tools::getValue('NBZ_ENVIROMENT', Configuration::get('NBZ_ENVIROMENT')),
-            'NBZ_MERCHANTID_PEN' => Tools::getValue('NBZ_MERCHANTID_PEN', trim(Configuration::get('NBZ_MERCHANTID_PEN'))),
-            'NBZ_USER_PEN' => Tools::getValue('NBZ_USER_PEN', trim(Configuration::get('NBZ_USER_PEN'))),
-            'NBZ_PASSWORD_PEN' => Tools::getValue('NBZ_PASSWORD_PEN', trim(Configuration::get('NBZ_PASSWORD_PEN'))),
-            'NBZ_MERCHANTID_USD' => Tools::getValue('NBZ_MERCHANTID_USD', trim(Configuration::get('NBZ_MERCHANTID_USD'))),
-            'NBZ_USER_USD' => Tools::getValue('NBZ_USER_USD', trim(Configuration::get('NBZ_USER_USD'))),
-            'NBZ_PASSWORD_USD' => Tools::getValue('NBZ_PASSWORD_USD', Configuration::get('NBZ_PASSWORD_USD')),
-            'NBZ_PEN' => Tools::getValue('NBZ_PEN', Configuration::get('NBZ_PEN')),
-            'NBZ_USD' => Tools::getValue('NBZ_USD', Configuration::get('NBZ_USD')),
-            'FREE' => Tools::getValue('FREE', Configuration::get('FREE')),
-            'NBZ_CALLBACK' => Tools::getValue('NBZ_CALLBACK', $this->callback),
-        );
+        $languages = Language::getLanguages(false);
+        $fields = array();
+
+        $fields['NBZ_DEBUG'] = Tools::getValue('NBZ_DEBUG', Configuration::get('NBZ_DEBUG'));
+        $fields['NBZ_LOGO'] = Tools::getValue('NBZ_LOGO', Configuration::get('NBZ_LOGO'));
+        $fields['NBZ_ENVIROMENT'] = Tools::getValue('NBZ_ENVIROMENT', Configuration::get('NBZ_ENVIROMENT'));
+        $fields['NBZ_MERCHANTID_PEN'] = Tools::getValue('NBZ_MERCHANTID_PEN', trim(Configuration::get('NBZ_MERCHANTID_PEN')));
+        $fields['NBZ_USER_PEN'] = Tools::getValue('NBZ_USER_PEN', trim(Configuration::get('NBZ_USER_PEN')));
+        $fields['NBZ_PASSWORD_PEN'] = Tools::getValue('NBZ_PASSWORD_PEN', trim(Configuration::get('NBZ_PASSWORD_PEN')));
+        $fields['NBZ_MERCHANTID_USD'] = Tools::getValue('NBZ_MERCHANTID_USD', trim(Configuration::get('NBZ_MERCHANTID_USD')));
+        $fields['NBZ_USER_USD'] = Tools::getValue('NBZ_USER_USD', trim(Configuration::get('NBZ_USER_USD')));
+        $fields['NBZ_PASSWORD_USD'] = Tools::getValue('NBZ_PASSWORD_USD', Configuration::get('NBZ_PASSWORD_USD'));
+        $fields['NBZ_PEN'] = Tools::getValue('NBZ_PEN', Configuration::get('NBZ_PEN'));
+        $fields['NBZ_USD'] = Tools::getValue('NBZ_USD', Configuration::get('NBZ_USD'));
+        $fields['FREE'] = Tools::getValue('FREE', Configuration::get('FREE'));
+        $fields['NBZ_CALLBACK'] = Tools::getValue('NBZ_CALLBACK', $this->callback);
+        $fields['NBZ_PAYMENT_OPTION_LOGO_SHOW'] = Tools::getValue('NBZ_PAYMENT_OPTION_LOGO_SHOW', Configuration::get('NBZ_PAYMENT_OPTION_LOGO_SHOW'));
+
+        foreach ($languages as $lang) {
+            $fields['NBZ_PAYMENT_OPTION_TEXT'][$lang['id_lang']] = Tools::getValue('NBZ_PAYMENT_OPTION_TEXT_'.$lang['id_lang'], Configuration::get('NBZ_PAYMENT_OPTION_TEXT', $lang['id_lang']));
+            $fields['NBZ_PAYMENT_OPTION_LOGO'][$lang['id_lang']] = Tools::getValue('NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang'], Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $lang['id_lang']));
+        }
+
+        return $fields;
     }
 
     private function postValidation()
@@ -409,6 +489,10 @@ class Niubiz extends PaymentModule
 
     private function postProcess()
     {
+      $languages = Language::getLanguages(false);
+      $values = array();
+      $update_images_values = false;
+
         if (Tools::isSubmit('btnSubmit')) {
             Configuration::updateValue('NBZ_LOGO', Tools::getValue('NBZ_LOGO'));
             Configuration::updateValue('NBZ_ENVIROMENT', Tools::getValue('NBZ_ENVIROMENT'));
@@ -422,9 +506,45 @@ class Niubiz extends PaymentModule
             Configuration::updateValue('NBZ_PEN', Tools::getValue('NBZ_PEN'));
             Configuration::updateValue('NBZ_USD', Tools::getValue('NBZ_USD'));
             Configuration::updateValue('NBZ_CALLBACK', $this->callback);
+            Configuration::updateValue('NBZ_PAYMENT_OPTION_LOGO_SHOW', Tools::getValue('NBZ_PAYMENT_OPTION_LOGO_SHOW'));
+
+            foreach ($languages as $lang) {
+                if (isset($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']])
+                    && isset($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']]['tmp_name'])
+                    && !empty($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']]['tmp_name'])) {
+                    if ($error = ImageManager::validateUpload($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']], 4000000)) {
+                        return $error;
+                    } else {
+                        $ext = substr($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']]['name'], strrpos($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']]['name'], '.') + 1);
+                        $file_name = md5($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']]['name']).'.'.$ext;
+                        if (!move_uploaded_file($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']]['tmp_name'], dirname(__FILE__).DIRECTORY_SEPARATOR .'img' . DIRECTORY_SEPARATOR.$file_name)) {
+                            return $this->displayError($this->trans('An error occurred while attempting to upload the file.', array(), 'Admin.Notifications.Error'));
+                        } else {
+                            if (Configuration::hasContext('NBZ_PAYMENT_OPTION_LOGO', $lang['id_lang'], Shop::getContext())
+                                && Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $lang['id_lang']) != $file_name) {
+                                @unlink(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $lang['id_lang']));
+                            }
+
+                            $values['NBZ_PAYMENT_OPTION_LOGO'][$lang['id_lang']] = $file_name;
+                        }
+                    }
+
+                    $update_images_values = true;
+                }
+
+                $values['NBZ_PAYMENT_OPTION_TEXT'][$lang['id_lang']] = Tools::getValue('NBZ_PAYMENT_OPTION_TEXT_'.$lang['id_lang']);
+            }
+
+            if ($update_images_values) {
+                Configuration::updateValue('NBZ_PAYMENT_OPTION_LOGO', $values['NBZ_PAYMENT_OPTION_LOGO']);
+            }
+
+            Configuration::updateValue('NBZ_PAYMENT_OPTION_TEXT', $values['NBZ_PAYMENT_OPTION_TEXT']);
+
+            return $this->displayConfirmation($this->trans('The settings have been updated.', array(), 'Admin.Notifications.Success'));
         }
 
-        $this->html .= $this->displayConfirmation($this->trans('Guardado Correctamente'));
+        return '';
     }
 
     public function hookPayment($params)
@@ -458,7 +578,7 @@ class Niubiz extends PaymentModule
         }
 
         $payment_options = array(
-            'cta_text' => $this->trans('Pay with credit/debit card'),
+            'cta_text' => Configuration::get('NBZ_PAYMENT_OPTION_TEXT'),
             'logo' => $this->views.'img/logo-visanet.png',
             'action' => $this->context->link->getModuleLink($this->name, 'checkout', array(), true)
         );
@@ -472,24 +592,11 @@ class Niubiz extends PaymentModule
             return;
         }
 
-        switch ($this->psVersion) {
-            case 1.7:
-                $cart = new Cart($params['order']->id_cart);
-                $currency = new Currency($params['order']->id_currency);
-                $state = $params['order']->getCurrentState();
-                $sql = 'SELECT * FROM '._DB_PREFIX_.$this->name.'_log WHERE id_order='.$params['order']->id;
-                $total_to_pay = Tools::displayPrice($params['order']->total_paid, $currency, false);
-                break;
-
-            default:
-                $cart = new Cart($params['objOrder']->id_cart);
-                $currency = new Currency($params['objOrder']->id_currency);
-                $state = $params['objOrder']->getCurrentState();
-                $sql = 'SELECT * FROM '._DB_PREFIX_.$this->name.'_log WHERE id_order='.$params['objOrder']->id;
-                $total_to_pay = Tools::displayPrice($params['objOrder']->total_paid, $currency, false);
-                break;
-        }
-
+        $cart = new Cart($params['order']->id_cart);
+        $currency = new Currency($params['order']->id_currency);
+        $state = $params['order']->getCurrentState();
+        $sql = 'SELECT * FROM '._DB_PREFIX_.$this->name.'_log WHERE id_order='.$params['order']->id;
+        $total_to_pay = Tools::displayPrice($params['order']->total_paid, $currency, false);
 
         $in_array = in_array(
             $state,
@@ -505,7 +612,6 @@ class Niubiz extends PaymentModule
         } else {
             $this->smarty->assign('status', 'failed');
         }
-
 
         $result = Db::getInstance()->getRow($sql);
 
@@ -542,10 +648,15 @@ class Niubiz extends PaymentModule
 
         $newOption = new PaymentOption();
         $newOption->setModuleName($this->name)
-            ->setLogo(Media::getMediaPath(dirname(__FILE__).'/views/img/paymentoptions.jpg'))
-            ->setCallToActionText($this->trans('Pay with credit/debid card'))
+            ->setCallToActionText(Configuration::get('NBZ_PAYMENT_OPTION_TEXT', $this->context->language->id))
             ->setAction($this->context->link->getModuleLink($this->name, 'checkout', array(), true))
             ->setAdditionalInformation($this->fetch('module:niubiz/views/templates/hook/paymentoption.tpl'));
+
+        if (Configuration::get('NBZ_PAYMENT_OPTION_LOGO_SHOW')) {
+            $newOption->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/img/'.Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $this->context->language->id)));
+        }
+
+
         $payment_options = [
             $newOption,
         ];

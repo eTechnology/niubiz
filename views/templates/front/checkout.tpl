@@ -27,9 +27,9 @@
 {block name='page_content'}
 
 <div class="text-center">
-  <h1 class="h1">{l s='Payment confirmation' d='Modules.Niubiz.Checkout'}</h1>
+  <h1 class="h1">{l s='Confirmacion de pago' d='Modules.Niubiz.Checkout'}</h1>
   <br>
-  <p>{l s='To confirm your purchase please click on the following button' d='Modules.Niubiz.Checkout'}</p>
+  <p>{l s='Para confirmar el pago, por favor haga click en el siguiente botón' d='Modules.Niubiz.Checkout'}</p>
     <br>
     <div class="row">
         <div class="col-xs-12 col-md-12">

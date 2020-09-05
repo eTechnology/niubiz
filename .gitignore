@@ -1,4 +1,4 @@
-# Gitignore Ver 1.1
+# Gitignore Ver 1.0.1
 # Este archivo fue personalizado para sistemas desarrollados en Prestashop 1.5 y 1.6
 #
 # @author Victor Castro Contreras
@@ -19,3 +19,7 @@ config.xml
 .DS_Store
 logs/index.php!
 logs/*
+
+img/*
+img/options_cards.png!
+img/index.php!

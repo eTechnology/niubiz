@@ -26,7 +26,9 @@
 {literal}
 <style type="text/css">
 	.panel#fieldset_0,
-	.panel#fieldset_0_0{
+	.panel#fieldset_0_0, 
+	.panel#fieldset_1,
+	.panel#fieldset_1_1 {
 		width: 96.66%!important;
 	}
 	.panel {
