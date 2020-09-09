@@ -6,7 +6,6 @@
 
 
 ## Niubiz - Prestashop 1.7.x
-=================================================
 
 Este modulo provee la integración a un servicio de pagos en Internet con tarjeta VISA y es utilizado como un apoyo a las soluciones de comercio electrónico pero no sólo permite esta separación lógica y dedicación de recursos, también aumenta la seguridad y protege a los comercios entre sí mediante la autenticación y el control de acceso.
 
@@ -18,7 +17,7 @@ Este modulo provee la integración a un servicio de pagos en Internet con tarjet
 4. Activar el modo DEBUG para verificar el flujo de comunicación
 5. Realizar una compra de prueba
 6. Si todo va OK, desactivar el modo DEBUG
-<img width="250" src="https://raw.githubusercontent.com/vhc-prestashop-peru/niubiz/improve/readme/.docs/form.png">
+<img width="300" src="https://raw.githubusercontent.com/vhc-prestashop-peru/niubiz/improve/readme/.docs/form.png">
 
 #### Autores
 - **Victor Castro** <<victor@castrocontreras.com>>
