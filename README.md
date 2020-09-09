@@ -1,5 +1,5 @@
-MODULO DE INTEGRACIÓN CON NIUBIZ
-===============================
+# MODULO DE INTEGRACIÓN CON NIUBIZ - Prestashop 1.7
+=================================================
 
 Este modulo provee la integración a un servicio de pagos en Internet con tarjeta VISA y es utilizado como un apoyo a las soluciones de comercio electrónico pero no sólo permite esta separación lógica y dedicación de recursos, también aumenta la seguridad y protege a los comercios entre sí mediante la autenticación y el control de acceso.
 
