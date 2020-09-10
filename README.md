@@ -31,3 +31,4 @@ Add you parameters sent for Niubiz in form on Configure Module.
 
 ### Contributing
 - **Victor Castro** <<victor@castrocontreras.com>>
+- **Roger Pecho** <<integraciones@visanet.com.pe>>
