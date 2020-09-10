@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/vhc-prestashop-peru/niubiz/improve/readme/.docs/niubiz.jpg" alt="Niubiz logo" />
+    <img src="https://raw.githubusercontent.com/vhc-prestashop-peru/niubiz/master/.docs/niubiz.jpg" alt="Niubiz logo" />
 </p>
 <h3 align="center">Module payment to Prestashop</h3>
 <p align="center">The most complete module payment with standard coding and syntax Prestashop 1.7</p>
