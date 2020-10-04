@@ -43,7 +43,6 @@ class NiubizCheckoutModuleFrontController extends ModuleFrontController
         $sessionToken = $this->createToken($amount, $securityKey);
         $userTokenId = $this->userTokenId();
 
-
         $session = array();
         $session['id_cart'] = (int)$cart->id;
         $session['id_customer'] = (int)$customer->id;
@@ -80,11 +79,10 @@ class NiubizCheckoutModuleFrontController extends ModuleFrontController
 
         $accessKey = $this->module->vsauser != '' ? $this->module->vsauser : die('No se ha encontrado el usuario para la moneda '.$currency->iso_code);
         $secretKey = $this->module->vsapassword != '' ? $this->module->vsapassword : die('No se ha encontrado la contraseña para la moneda '.$currency->iso_code);
-        $url = $this->module->security_api;
         $header = array("Content-Type: application/json");
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_URL, $this->module->security_api);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         curl_setopt($ch, CURLOPT_USERPWD, "$accessKey:$secretKey");
         curl_setopt($ch, CURLOPT_HEADER, FALSE);
@@ -117,7 +115,7 @@ class NiubizCheckoutModuleFrontController extends ModuleFrontController
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->module->session_api);
-        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURL_HTTP_VERSION_1_1);
         curl_setopt($ch, CURLOPT_HEADER, FALSE);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_POST, TRUE);

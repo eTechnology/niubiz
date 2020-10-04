@@ -162,7 +162,7 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         $response = curl_exec($ch);
         $json = json_decode($response);
-        // print_r($json); die;
+        print_r($json); die;
         $json = json_encode($json, JSON_PRETTY_PRINT);
         return $json;
     }

@@ -577,13 +577,13 @@ class Niubiz extends PaymentModule
         }
 
         $cart = $this->context->cart;
+        $currency = new Currency($this->context->cookie->id_currency);
 
         if (Configuration::get('NBZ_USD'))
             $this->acceptedCurrency[] = 'USD';
         if (Configuration::get('NBZ_PEN'))
             $this->acceptedCurrency[] = 'PEN';
 
-        $currency = new Currency($this->context->cookie->id_currency);
         $isModuleConfigured = in_array($currency->iso_code, $this->acceptedCurrency);
 
         $this->smarty->assign([
@@ -616,7 +616,7 @@ class Niubiz extends PaymentModule
             $this->acceptedCurrency[] = 'PEN';
 
         $currency = new Currency($this->context->cookie->id_currency);
-        $this->context->controller->addCSS($this->_path.'/views/css/niubiz.css');
+        
 
         $this->context->smarty->assign(array(
             'views' => $this->views,
@@ -647,6 +647,7 @@ class Niubiz extends PaymentModule
         return $payment_options;
     }
 
+    
     public function hookPaymentReturn($params)
     {
         if (!$this->active) {
