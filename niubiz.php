@@ -235,6 +235,12 @@ class Niubiz extends PaymentModule
             'input' => array(
                 array(
                     'type' => 'text',
+                    'label' => $this->trans('Logo URL', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_LOGO',
+                    'required' => true,
+                ),
+                array(
+                    'type' => 'text',
                     'label' => $this->trans('Nombre de pago', array(), 'Modules.Niubiz.Admin'),
                     'desc' => $this->trans('Nombre que saldra en las opciones de pago', array(), 'Modules.Niubiz.Admin'),
                     'name' => 'NBZ_PAYMENT_OPTION_TEXT',
@@ -289,8 +295,8 @@ class Niubiz extends PaymentModule
                 ),
                 array(
                     'type' => 'switch',
-                    'label' => $this->trans('Debugger', array(), 'Modules.Niubiz.Admin'),
-                    'name' => 'NBZ_DEBUG',
+                    'label' => $this->trans('Enable PagoEfectivo', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_ENABLE_PAGOEFECTIVO',
                     'values' => array(
                         array(
                             'id' => 'active_on',
@@ -306,16 +312,27 @@ class Niubiz extends PaymentModule
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->trans('Logo URL', array(), 'Modules.Niubiz.Admin'),
-                    'name' => 'NBZ_LOGO',
-                    'required' => true,
-                ),
-                array(
-                    'type' => 'text',
                     'label' => $this->trans('URL PagoEfectivo', array(), 'Modules.Niubiz.Admin'),
                     'desc' => $this->trans('Send this url to Niubiz to capture the remote payment of PagoEfectivo.', array(), 'Modules.Niubiz.Admin'),
                     'name' => 'NBZ_CALLBACK',
                     'required' => false,
+                ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->trans('Debugger', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_DEBUG',
+                    'values' => array(
+                        array(
+                            'id' => 'active_on',
+                            'value' => 1,
+                            'label' => $this->trans('Enabled', array(), 'Modules.Niubiz.Admin')
+                        ),
+                        array(
+                            'id' => 'active_off',
+                            'value' => 0,
+                            'label' => $this->trans('Disabled', array(), 'Modules.Niubiz.Admin')
+                        )
+                    ),
                 ),
             ),
             'submit' => array(
@@ -460,6 +477,7 @@ class Niubiz extends PaymentModule
         $fields['FREE'] = Tools::getValue('FREE', Configuration::get('FREE'));
         $fields['NBZ_CALLBACK'] = Tools::getValue('NBZ_CALLBACK', $this->callback);
         $fields['NBZ_PAYMENT_OPTION_LOGO_SHOW'] = Tools::getValue('NBZ_PAYMENT_OPTION_LOGO_SHOW', Configuration::get('NBZ_PAYMENT_OPTION_LOGO_SHOW'));
+        $fields['NBZ_ENABLE_PAGOEFECTIVO'] = Tools::getValue('NBZ_ENABLE_PAGOEFECTIVO', Configuration::get('NBZ_ENABLE_PAGOEFECTIVO'));
 
         foreach ($languages as $lang) {
             $fields['NBZ_PAYMENT_OPTION_TEXT'][$lang['id_lang']] = Tools::getValue('NBZ_PAYMENT_OPTION_TEXT_'.$lang['id_lang'], Configuration::get('NBZ_PAYMENT_OPTION_TEXT', $lang['id_lang']));
@@ -496,8 +514,8 @@ class Niubiz extends PaymentModule
         if (Tools::isSubmit('btnSubmit')) {
             Configuration::updateValue('NBZ_LOGO', Tools::getValue('NBZ_LOGO'));
             Configuration::updateValue('NBZ_ENVIROMENT', Tools::getValue('NBZ_ENVIROMENT'));
-            Configuration::updateValue('NBZ_DEBUG', Tools::getValue('NBZ_DEBUG'));
             Configuration::updateValue('NBZ_MERCHANTID_PEN', Tools::getValue('NBZ_MERCHANTID_PEN'));
+            Configuration::updateValue('NBZ_DEBUG', Tools::getValue('NBZ_DEBUG'));
             Configuration::updateValue('NBZ_USER_PEN', Tools::getValue('NBZ_USER_PEN'));
             Configuration::updateValue('NBZ_PASSWORD_PEN', Tools::getValue('NBZ_PASSWORD_PEN'));
             Configuration::updateValue('NBZ_MERCHANTID_USD', Tools::getValue('NBZ_MERCHANTID_USD'));
@@ -507,6 +525,7 @@ class Niubiz extends PaymentModule
             Configuration::updateValue('NBZ_USD', Tools::getValue('NBZ_USD'));
             Configuration::updateValue('NBZ_CALLBACK', $this->callback);
             Configuration::updateValue('NBZ_PAYMENT_OPTION_LOGO_SHOW', Tools::getValue('NBZ_PAYMENT_OPTION_LOGO_SHOW'));
+            Configuration::updateValue('NBZ_ENABLE_PAGOEFECTIVO', Tools::getValue('NBZ_ENABLE_PAGOEFECTIVO'));
 
             foreach ($languages as $lang) {
                 if (isset($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']])
@@ -545,6 +564,48 @@ class Niubiz extends PaymentModule
         }
 
         return '';
+    }
+
+    public function hookPaymentOptions($params)
+    {
+        if (!$this->active) {
+            return;
+        }
+
+        if (!$this->checkCurrency($params['cart'])) {
+            return;
+        }
+
+        $cart = $this->context->cart;
+
+        if (Configuration::get('NBZ_USD'))
+            $this->acceptedCurrency[] = 'USD';
+        if (Configuration::get('NBZ_PEN'))
+            $this->acceptedCurrency[] = 'PEN';
+
+        $currency = new Currency($this->context->cookie->id_currency);
+        $isModuleConfigured = in_array($currency->iso_code, $this->acceptedCurrency);
+
+        $this->smarty->assign([
+            'checkTotal' => Tools::displayPrice($cart->getOrderTotal(true, Cart::BOTH)),
+        ]);
+
+        $newOption = new PaymentOption();
+        $newOption->setModuleName($this->name)
+            ->setCallToActionText($isModuleConfigured ? Configuration::get('NBZ_PAYMENT_OPTION_TEXT', $this->context->language->id) : 'WARNING!! Niubiz is not enabled for current currency')
+            ->setAction($this->context->link->getModuleLink($this->name, 'checkout', array(), true))
+            ->setAdditionalInformation($this->fetch('module:niubiz/views/templates/hook/paymentoption.tpl'));
+
+        if (Configuration::get('NBZ_PAYMENT_OPTION_LOGO_SHOW')) {
+            $newOption->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/img/'.Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $this->context->language->id)));
+        }
+
+
+        $payment_options = [
+            $newOption,
+        ];
+
+        return $payment_options;
     }
 
     public function hookPayment($params)
@@ -632,38 +693,6 @@ class Niubiz extends PaymentModule
         return $this->display(__FILE__, 'confirmation.tpl');
     }
 
-    public function hookPaymentOptions($params)
-    {
-        if (!$this->active) {
-            return;
-        }
-
-        if (!$this->checkCurrency($params['cart'])) {
-            return;
-        }
-
-        $this->smarty->assign(
-            $this->getTemplateVars()
-        );
-
-        $newOption = new PaymentOption();
-        $newOption->setModuleName($this->name)
-            ->setCallToActionText(Configuration::get('NBZ_PAYMENT_OPTION_TEXT', $this->context->language->id))
-            ->setAction($this->context->link->getModuleLink($this->name, 'checkout', array(), true))
-            ->setAdditionalInformation($this->fetch('module:niubiz/views/templates/hook/paymentoption.tpl'));
-
-        if (Configuration::get('NBZ_PAYMENT_OPTION_LOGO_SHOW')) {
-            $newOption->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/img/'.Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $this->context->language->id)));
-        }
-
-
-        $payment_options = [
-            $newOption,
-        ];
-
-        return $payment_options;
-    }
-
     public function rowTransaction($id_customer)
     {
         $sql = 'SELECT c.id_customer, v.aliasname, v.date_add, v.usertokenuuid
@@ -687,14 +716,5 @@ class Niubiz extends PaymentModule
             }
         }
         return false;
-    }
-
-    public function getTemplateVars()
-    {
-        $cart = $this->context->cart;
-
-        return [
-            'checkTotal' => Tools::displayPrice($cart->getOrderTotal(true, Cart::BOTH)),
-        ];
     }
 }
