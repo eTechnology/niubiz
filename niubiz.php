@@ -293,7 +293,7 @@ class Niubiz extends PaymentModule
                         'name' => 'name'
                     )
                 ),
-                array(
+                /*array(
                     'type' => 'switch',
                     'label' => $this->trans('Enable PagoEfectivo', array(), 'Modules.Niubiz.Admin'),
                     'name' => 'NBZ_ENABLE_PAGOEFECTIVO',
@@ -309,7 +309,7 @@ class Niubiz extends PaymentModule
                             'label' => $this->trans('Disabled', array(), 'Modules.Niubiz.Admin')
                         )
                     ),
-                ),
+                ),*/
                 array(
                     'type' => 'text',
                     'label' => $this->trans('URL PagoEfectivo', array(), 'Modules.Niubiz.Admin'),
