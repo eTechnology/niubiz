@@ -577,7 +577,14 @@ class Niubiz extends PaymentModule
         }
 
         $cart = $this->context->cart;
+        $customer = Context::getContext()->customer;
         $currency = new Currency($this->context->cookie->id_currency);
+        $amount = number_format($cart->getOrderTotal(true, Cart::BOTH), 2, '.', '');
+        $securityKey = $this->securityKey();
+        setcookie("key", $securityKey);
+
+        $sessionToken = $this->createToken($amount, $securityKey);
+        $userTokenId = $this->userTokenId();
 
         if (Configuration::get('NBZ_USD'))
             $this->acceptedCurrency[] = 'USD';
@@ -585,6 +592,23 @@ class Niubiz extends PaymentModule
             $this->acceptedCurrency[] = 'PEN';
 
         $isModuleConfigured = in_array($currency->iso_code, $this->acceptedCurrency);
+
+        $variables = array(
+            'userTokenId' => $userTokenId,
+            'sessionToken' => $sessionToken,
+            'merchantId' => $this->merchantid,
+            'urlScript' => $this->urlScript,
+            'numOrden' => (int)$cart->id,
+            'monto' => $amount,
+        );
+
+        $this->context->smarty->assign(array(
+            'logo' => Configuration::get('VSA_LOGO'),
+            'customer' => $customer,
+            'debug' => Configuration::get('VSA_DEBUG'),
+            'psVersion' => $this->psVersion,
+            'var' => $variables,
+        ));
 
         $this->smarty->assign([
             'checkTotal' => Tools::displayPrice($cart->getOrderTotal(true, Cart::BOTH)),
@@ -599,7 +623,6 @@ class Niubiz extends PaymentModule
         if (Configuration::get('NBZ_PAYMENT_OPTION_LOGO_SHOW')) {
             $newOption->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/img/'.Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $this->context->language->id)));
         }
-
 
         $payment_options = [
             $newOption,
@@ -697,5 +720,86 @@ class Niubiz extends PaymentModule
             }
         }
         return false;
+    }
+
+    private function securityKey()
+    {
+        $currency = new Currency($this->context->cookie->id_currency);
+
+        $accessKey = $this->vsauser != '' ? $this->vsauser : die('No se ha encontrado el usuario para la moneda '.$currency->iso_code);
+        $secretKey = $this->vsapassword != '' ? $this->vsapassword : die('No se ha encontrado la contraseña para la moneda '.$currency->iso_code);
+        $header = array("Content-Type: application/json");
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->security_api);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($ch, CURLOPT_USERPWD, "$accessKey:$secretKey");
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        $key = curl_exec($ch);
+        if ($key !== 'Unauthorized access')
+            return $key;
+        else
+            die($key);
+    }
+
+    public function createToken($amount, $key)
+    {
+        $header = ["Content-Type: application/json", "Authorization: $key"];
+        $request_body = '{
+            "amount" : '.$amount.',
+            "channel" : "web",
+            "antifraud" : {
+                "clientIp" : "'.$_SERVER["REMOTE_ADDR"].'",
+                "merchantDefineData" : {
+                    "MDD1" : "web",
+                    "MDD2" : "Canl",
+                    "MDD3" : "Canl"
+                }
+            }
+        }';
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->session_api);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURL_HTTP_VERSION_1_1);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $request_body);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        $response = curl_exec($ch);
+        $json = json_decode($response);
+        if (!isset($json->sessionKey)) {
+            echo json_encode([
+                'session_api' => $this->session_api,
+                'response' => $json
+            ]);
+            die;
+        }
+        $dato = $json->sessionKey;
+
+
+        return $dato;
+    }
+
+    public function userTokenId()
+    {
+        mt_srand((double)microtime()*10000);
+        $charid = Tools::strtoupper(md5(uniqid(rand(), true)));
+        $hyphen = chr(45);
+        $uuid = chr(123)
+            .Tools::substr($charid, 0, 8).$hyphen
+            .Tools::substr($charid, 8, 4).$hyphen
+            .Tools::substr($charid, 12, 4).$hyphen
+            .Tools::substr($charid, 16, 4).$hyphen
+            .Tools::substr($charid, 20, 12).$hyphen
+            .chr(125);
+        $uuid = Tools::substr($uuid, 1, 36);
+
+        return $uuid;
     }
 }
