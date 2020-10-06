@@ -63,7 +63,7 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
             Tools::redirect('index.php?controller=order&step=1');
         }
 
-        $respuesta = json_decode($this->authorization($_COOKIE["key"], $total, $transactionToken, $cart->id), true);
+        $respuesta = $this->authorization($_COOKIE["key"], $total, $transactionToken, $cart->id);
 
         $dataInput = isset($respuesta['dataMap']) ? 'dataMap' : 'data';
 
@@ -119,7 +119,6 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
             $rdc = 'index.php?controller=order-confirmation&id_cart='.(int)$cart->id.'&id_module='.(int)$this->module->id;
 
             Tools::redirect($rdc.'&id_order='.$this->module->currentOrder.'&key='.$customer->secure_key);
-
         }
     }
 
@@ -153,7 +152,6 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->module->authorization_api);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        #curl_setopt($ch, CURLOPT_USERPWD, "$accessKey:$secretKey");
         curl_setopt($ch, CURLOPT_HEADER, FALSE);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_POST, TRUE);
@@ -161,9 +159,6 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request_body));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         $response = curl_exec($ch);
-        $json = json_decode($response);
-        print_r($json); die;
-        $json = json_encode($json, JSON_PRETTY_PRINT);
-        return $json;
+        return json_decode($response, true);
     }
 }

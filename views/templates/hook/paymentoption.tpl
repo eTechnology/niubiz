@@ -1,1 +1,3 @@
-<section id="niubiz-payment-option"></section>
+<section id="niubiz-payment-option">
+
+</section>

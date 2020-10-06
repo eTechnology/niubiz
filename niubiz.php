@@ -608,26 +608,6 @@ class Niubiz extends PaymentModule
         return $payment_options;
     }
 
-    public function hookPayment($params)
-    {
-        if (Configuration::get('NBZ_USD'))
-            $this->acceptedCurrency[] = 'USD';
-        if (Configuration::get('NBZ_PEN'))
-            $this->acceptedCurrency[] = 'PEN';
-
-        $currency = new Currency($this->context->cookie->id_currency);
-        
-
-        $this->context->smarty->assign(array(
-            'views' => $this->views,
-            'currency_code' => $currency->iso_code,
-            'acceptedCurrency' => in_array($currency->iso_code, $this->acceptedCurrency),
-            'debug' => Configuration::get('NBZ_DEBUG')
-        ));
-
-        return $this->display(__FILE__, 'payment.tpl');
-    }
-
     public function hookDisplayPaymentEU($params)
     {
         if (!$this->active) {
