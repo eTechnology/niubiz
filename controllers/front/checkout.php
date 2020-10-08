@@ -36,7 +36,6 @@ class NiubizCheckoutModuleFrontController extends ModuleFrontController
         $customer = Context::getContext()->customer;
 
         $amount = number_format($cart->getOrderTotal(true, Cart::BOTH), 2, '.', '');
-
         $securityKey = $this->securityKey();
         setcookie("key", $securityKey);
 

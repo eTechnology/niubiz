@@ -1,5 +1,5 @@
-<section id="niubiz-payment-option">
-    <form id="niubizform" action="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}" method="POST">
+<section id="niubiz-payment-option" style="padding: 20px 0">
+    <form id="niubizform" action="{$linkReturn|escape:'html':'UTF-8'}" method="POST">
         <script src="{$var.urlScript|escape:'html':'UTF-8'}"
         data-sessiontoken="{$var.sessionToken|escape:'htmlall':'UTF-8'}"
         data-merchantid="{$var.merchantId|escape:'htmlall':'UTF-8'}"
@@ -26,27 +26,23 @@
         data-productid=""
         data-phone=""
         data-expirationminutes='5'
-        data-timeouturl="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}"
+        data-timeouturl="{$linkReturn|escape:'html':'UTF-8'}"
         /></script>
     </form>
 </section>
 
 {literal}
-    <script>
-        //  Remove next line if you has resolved function issue
-        document.getElementById('niubiz-payment-option').style.display = 'none'
+<script>
+    (function() {
+        $('#payment-confirmation > .ps-shown-by-js > button').click(function(e) {
+            var isNiubizSelected = $('.payment-options').find("input[data-module-name='niubiz']").is(':checked');
 
-        (function() {
-            $('#payment-confirmation > .ps-shown-by-js > button').click(function(e) {
-                var isNiubizSelected = $('.payment-options').find("input[data-module-name='niubiz']").is(':checked');
-
-                if (isNiubizSelected) {
-                    console.log('isNiubizSelected ==> ', isNiubizSelected)
-                    e.preventDefault();
-                    document.querySelector('.start-js-btn.modal-opener.default').click();
-                    return false;
-                }
-            });
-        })();    
-    </script>
-    {/literal}
+            if (isNiubizSelected) {
+                e.preventDefault();
+                document.querySelector('.start-js-btn.modal-opener.default').click();
+                return false;
+            }
+        });
+    })();
+</script>
+{/literal}

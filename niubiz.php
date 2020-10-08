@@ -42,10 +42,10 @@ class Niubiz extends PaymentModule
     {
         $this->name = 'niubiz';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.2';
+        $this->version = '1.0.4';
         $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
         $this->author = "Victor Castro";
-        $this->controllers = array('checkout', 'return');
+        $this->controllers = array('checkout');
 
         $this->currencies = true;
         $this->currencies_mode = 'checkbox';
@@ -293,10 +293,10 @@ class Niubiz extends PaymentModule
                         'name' => 'name'
                     )
                 ),
-                /*array(
+                array(
                     'type' => 'switch',
-                    'label' => $this->trans('Enable PagoEfectivo', array(), 'Modules.Niubiz.Admin'),
-                    'name' => 'NBZ_ENABLE_PAGOEFECTIVO',
+                    'label' => $this->trans('Show on PaymentOption', array(), 'Modules.Niubiz.Admin'),
+                    'name' => 'NBZ_ENABLE_PAYMENTOPTION',
                     'values' => array(
                         array(
                             'id' => 'active_on',
@@ -309,7 +309,7 @@ class Niubiz extends PaymentModule
                             'label' => $this->trans('Disabled', array(), 'Modules.Niubiz.Admin')
                         )
                     ),
-                ),*/
+                ),
                 array(
                     'type' => 'text',
                     'label' => $this->trans('URL PagoEfectivo', array(), 'Modules.Niubiz.Admin'),
@@ -477,7 +477,7 @@ class Niubiz extends PaymentModule
         $fields['FREE'] = Tools::getValue('FREE', Configuration::get('FREE'));
         $fields['NBZ_CALLBACK'] = Tools::getValue('NBZ_CALLBACK', $this->callback);
         $fields['NBZ_PAYMENT_OPTION_LOGO_SHOW'] = Tools::getValue('NBZ_PAYMENT_OPTION_LOGO_SHOW', Configuration::get('NBZ_PAYMENT_OPTION_LOGO_SHOW'));
-        $fields['NBZ_ENABLE_PAGOEFECTIVO'] = Tools::getValue('NBZ_ENABLE_PAGOEFECTIVO', Configuration::get('NBZ_ENABLE_PAGOEFECTIVO'));
+        $fields['NBZ_ENABLE_PAYMENTOPTION'] = Tools::getValue('NBZ_ENABLE_PAYMENTOPTION', Configuration::get('NBZ_ENABLE_PAYMENTOPTION'));
 
         foreach ($languages as $lang) {
             $fields['NBZ_PAYMENT_OPTION_TEXT'][$lang['id_lang']] = Tools::getValue('NBZ_PAYMENT_OPTION_TEXT_'.$lang['id_lang'], Configuration::get('NBZ_PAYMENT_OPTION_TEXT', $lang['id_lang']));
@@ -525,7 +525,7 @@ class Niubiz extends PaymentModule
             Configuration::updateValue('NBZ_USD', Tools::getValue('NBZ_USD'));
             Configuration::updateValue('NBZ_CALLBACK', $this->callback);
             Configuration::updateValue('NBZ_PAYMENT_OPTION_LOGO_SHOW', Tools::getValue('NBZ_PAYMENT_OPTION_LOGO_SHOW'));
-            Configuration::updateValue('NBZ_ENABLE_PAGOEFECTIVO', Tools::getValue('NBZ_ENABLE_PAGOEFECTIVO'));
+            Configuration::updateValue('NBZ_ENABLE_PAYMENTOPTION', Tools::getValue('NBZ_ENABLE_PAYMENTOPTION'));
 
             foreach ($languages as $lang) {
                 if (isset($_FILES['NBZ_PAYMENT_OPTION_LOGO_'.$lang['id_lang']])
@@ -608,17 +608,18 @@ class Niubiz extends PaymentModule
             'debug' => Configuration::get('VSA_DEBUG'),
             'psVersion' => $this->psVersion,
             'var' => $variables,
-        ));
-
-        $this->smarty->assign([
             'checkTotal' => Tools::displayPrice($cart->getOrderTotal(true, Cart::BOTH)),
-        ]);
+            'linkReturn' => $this->context->link->getModuleLink($this->name, 'return', array(), true)
+        ));
 
         $newOption = new PaymentOption();
         $newOption->setModuleName($this->name)
             ->setCallToActionText($isModuleConfigured ? Configuration::get('NBZ_PAYMENT_OPTION_TEXT', $this->context->language->id) : 'WARNING!! Niubiz is not enabled for current currency')
-            ->setAction($this->context->link->getModuleLink($this->name, 'checkout', array(), true))
-            ->setAdditionalInformation($this->fetch('module:niubiz/views/templates/hook/paymentoption.tpl'));
+            ->setAction($this->context->link->getModuleLink($this->name, 'checkout', array(), true));
+
+        if (Configuration::get('NBZ_ENABLE_PAYMENTOPTION')) {
+            $newOption->setAdditionalInformation($this->fetch('module:niubiz/views/templates/hook/paymentoption.tpl'));
+        }
 
         if (Configuration::get('NBZ_PAYMENT_OPTION_LOGO_SHOW')) {
             $newOption->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/img/'.Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $this->context->language->id)));
@@ -642,8 +643,8 @@ class Niubiz extends PaymentModule
         }
 
         $payment_options = array(
-            'cta_text' => Configuration::get('NBZ_PAYMENT_OPTION_TEXT'),
-            'logo' => $this->views.'img/logo-visanet.png',
+            'cta_text' => Configuration::get('NBZ_PAYMENT_OPTION_TEXT', $this->context->language->id),
+            'logo' => Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/img/'.Configuration::get('NBZ_PAYMENT_OPTION_LOGO', $this->context->language->id)),
             'action' => $this->context->link->getModuleLink($this->name, 'checkout', array(), true)
         );
 
