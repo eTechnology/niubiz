@@ -67,12 +67,6 @@
     </div>
 </div>
 
-<script>
-  document.getElementById('pagar').onclick = function() {
-    document.querySelector('.start-js-btn.modal-opener.default').click();
-  }
-</script>
-
 {if $debug > 0}
 <br>
 <pre>

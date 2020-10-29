@@ -32,6 +32,7 @@
 </section>
 
 {literal}
+{*
 <script>
     (function() {
         $('#payment-confirmation > .ps-shown-by-js > button').click(function(e) {
@@ -45,4 +46,5 @@
         });
     })();
 </script>
+*}
 {/literal}
