@@ -23,6 +23,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
+<H1> CONFIRMATION </H1>
 
     <h2 class="text-center">
     {if $status == 'ok'}

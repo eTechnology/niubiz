@@ -63,11 +63,10 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
             Tools::redirect('index.php?controller=order&step=1');
         }
 
-        $respuesta = json_decode($this->authorization($_COOKIE["key"], $total, $transactionToken, $cart->id), true);
+        $respuesta = $this->authorization($_COOKIE["key"], $total, $transactionToken, $cart->id);
 
         $dataInput = isset($respuesta['dataMap']) ? 'dataMap' : 'data';
 
-        unset($_COOKIE["key"]);
         $sal = [];
 
         if (isset($_POST['transactionToken']) && isset($_POST['url'])) {
@@ -103,24 +102,22 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
             ]);
             Tools::redirect($_POST['url']);
         } else {
-            if (Configuration::get('NBZ_DEBUG')) {
-                $sal['data']['id_cart'] = (int)$cart->id;
-                $sal['data']['id_customer'] = (int)$customer->id;
-                $sal['data']['pan'] = $respuesta[$dataInput]['CARD'];;
-                $sal['data']['numorden'] = $respuesta[$dataInput]['TRACE_NUMBER'];
-                $sal['data']['dsc_cod_accion'] = $respuesta[$dataInput]['ACTION_DESCRIPTION'];
-                $sal['data']['dsc_eci'] = pSQL($respuesta[$dataInput]['BRAND']);
-                $sal['data']['transactionToken'] = pSQL($transactionToken);
-                $sal['data']['aliasName'] = pSQL($respuesta[$dataInput]['SIGNATURE']);
-                $sal['data']['id_order'] = (int)$order->id;
-                Db::getInstance()->insert('niubiz_log', $sal['data']);
-            }
+            $sal['data']['id_cart'] = (int)$cart->id;
+            $sal['data']['id_customer'] = (int)$customer->id;
+            $sal['data']['pan'] = $respuesta[$dataInput]['CARD'];;
+            $sal['data']['numorden'] = $respuesta[$dataInput]['TRACE_NUMBER'];
+            $sal['data']['dsc_cod_accion'] = $respuesta[$dataInput]['ACTION_DESCRIPTION'];
+            $sal['data']['dsc_eci'] = pSQL($respuesta[$dataInput]['BRAND']);
+            $sal['data']['transactionToken'] = pSQL($transactionToken);
+            $sal['data']['aliasName'] = pSQL($respuesta[$dataInput]['SIGNATURE']);
+            $sal['data']['id_order'] = (int)$order->id;
+            Db::getInstance()->insert('niubiz_log', $sal['data']);
 
             $rdc = 'index.php?controller=order-confirmation&id_cart='.(int)$cart->id.'&id_module='.(int)$this->module->id;
 
             Tools::redirect($rdc.'&id_order='.$this->module->currentOrder.'&key='.$customer->secure_key);
-
         }
+        unset($_COOKIE["key"]);
     }
 
     function authorization($key, $amount,$transactionToken, $purchaseNumber)
@@ -153,7 +150,6 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->module->authorization_api);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        #curl_setopt($ch, CURLOPT_USERPWD, "$accessKey:$secretKey");
         curl_setopt($ch, CURLOPT_HEADER, FALSE);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_POST, TRUE);
@@ -161,9 +157,6 @@ class NiubizReturnModuleFrontController extends ModuleFrontController
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request_body));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         $response = curl_exec($ch);
-        $json = json_decode($response);
-        // print_r($json); die;
-        $json = json_encode($json, JSON_PRETTY_PRINT);
-        return $json;
+        return json_decode($response, true);
     }
 }
