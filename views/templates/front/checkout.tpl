@@ -33,7 +33,7 @@
     <br>
     <div class="row">
         <div class="col-xs-12 col-md-12">
-            <form action="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}" method="POST">
+            <form id="niubizform" action="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}" method="POST">
                 <script src="{$var.urlScript|escape:'html':'UTF-8'}"
                   data-sessiontoken="{$var.sessionToken|escape:'htmlall':'UTF-8'}"
                   data-merchantid="{$var.merchantId|escape:'htmlall':'UTF-8'}"
@@ -66,6 +66,12 @@
         </div>
     </div>
 </div>
+
+<script>
+  document.getElementById('pagar').onclick = function() {
+    document.querySelector('.start-js-btn.modal-opener.default').click();
+  }
+</script>
 
 {if $debug > 0}
 <br>
