@@ -67,7 +67,7 @@
     </div>
 </div>
 
-{if $debug > 0}
+{if $debug}
   <br>
   <pre>
   {$var|print_r:true}

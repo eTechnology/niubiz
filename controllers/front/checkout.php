@@ -60,9 +60,9 @@ class NiubizCheckoutModuleFrontController extends ModuleFrontController
         );
 
         $this->context->smarty->assign(array(
-            'logo' => Configuration::get('VSA_LOGO'),
+            'logo' => Configuration::get('NBZ_LOGO'),
             'customer' => (array) $customer,
-            'debug' => Configuration::get('VSA_DEBUG'),
+            'debug' => Configuration::get('NBZ_DEBUG'),
             'psVersion' => $this->module->psVersion,
             'var' => $variables,
             'linkReturn' => $this->context->link->getModuleLink($this->name, 'return', array(), true)
