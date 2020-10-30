@@ -12,9 +12,9 @@
         data-showamount=""
         data-purchasenumber="{$var.numOrden|escape:'htmlall':'UTF-8'}"
         data-amount="{$var.monto|escape:'htmlall':'UTF-8'}"
-        data-cardholdername="{$customer->firstname|escape:'htmlall':'UTF-8'}"
-        data-cardholderlastname="{$customer->lastname|escape:'htmlall':'UTF-8'}"
-        data-cardholderemail="{$customer->email|escape:'htmlall':'UTF-8'}"
+        data-cardholdername="{$customer.firstname|escape:'htmlall':'UTF-8'}"
+        data-cardholderlastname="{$customer.lastname|escape:'htmlall':'UTF-8'}"
+        data-cardholderemail="{$customer.email|escape:'htmlall':'UTF-8'}"
         data-usertoken="{$var.userTokenId|escape:'htmlall':'UTF-8'}"
         data-recurrence=""
         data-frequency=""
@@ -30,21 +30,3 @@
         /></script>
     </form>
 </section>
-
-{literal}
-{*
-<script>
-    (function() {
-        $('#payment-confirmation > .ps-shown-by-js > button').click(function(e) {
-            var isNiubizSelected = $('.payment-options').find("input[data-module-name='niubiz']").is(':checked');
-
-            if (isNiubizSelected) {
-                e.preventDefault();
-                document.querySelector('.start-js-btn.modal-opener.default').click();
-                return false;
-            }
-        });
-    })();
-</script>
-*}
-{/literal}

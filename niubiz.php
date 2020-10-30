@@ -604,7 +604,7 @@ class Niubiz extends PaymentModule
 
         $this->context->smarty->assign(array(
             'logo' => Configuration::get('VSA_LOGO'),
-            'customer' => $customer,
+            'customer' => (array) $customer,
             'debug' => Configuration::get('VSA_DEBUG'),
             'psVersion' => $this->psVersion,
             'var' => $variables,

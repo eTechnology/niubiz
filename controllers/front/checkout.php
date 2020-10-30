@@ -61,12 +61,12 @@ class NiubizCheckoutModuleFrontController extends ModuleFrontController
 
         $this->context->smarty->assign(array(
             'logo' => Configuration::get('VSA_LOGO'),
-            'customer' => $customer,
+            'customer' => (array) $customer,
             'debug' => Configuration::get('VSA_DEBUG'),
             'psVersion' => $this->module->psVersion,
             'var' => $variables,
+            'linkReturn' => $this->context->link->getModuleLink($this->name, 'return', array(), true)
         ));
-
 
         $this->setTemplate('module:niubiz/views/templates/front/checkout.tpl');
 
