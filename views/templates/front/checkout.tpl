@@ -24,12 +24,14 @@
 *}
 
 {extends file='page.tpl'}
-{block name='page_content'}
 
+{block name='page_title'}
+  {l s='Confirmacion de pago' d='Modules.Niubiz.Checkout'}
+{/block}
+
+{block name='page_content'}
 <div class="text-center">
-  <h1 class="h1">{l s='Confirmacion de pago' d='Modules.Niubiz.Checkout'}</h1>
-  <br>
-  <p>{l s='Para confirmar el pago, por favor haga click en el siguiente botón' d='Modules.Niubiz.Checkout'}</p>
+  <p>{l s='Para procesar el pago por favor haga click en el siguiente botón y complete los datos de su tarjeta.' d='Modules.Niubiz.Checkout'}</p>
     <br>
     <div class="row">
         <div class="col-xs-12 col-md-12">
@@ -46,9 +48,9 @@
                   data-showamount=""
                   data-purchasenumber="{$var.numOrden|escape:'htmlall':'UTF-8'}"
                   data-amount="{$var.monto|escape:'htmlall':'UTF-8'}"
-                  data-cardholdername="{$customer.firstname|escape:'htmlall':'UTF-8'}"
-                  data-cardholderlastname="{$customer.lastname|escape:'htmlall':'UTF-8'}"
-                  data-cardholderemail="{$customer.email|escape:'htmlall':'UTF-8'}"
+                  data-cardholdername="{$var.firstname|escape:'htmlall':'UTF-8'}"
+                  data-cardholderlastname="{$var.lastname|escape:'htmlall':'UTF-8'}"
+                  data-cardholderemail="{$var.email|escape:'htmlall':'UTF-8'}"
                   data-usertoken="{$var.userTokenId|escape:'htmlall':'UTF-8'}"
                   data-recurrence=""
                   data-frequency=""
