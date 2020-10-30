@@ -62,14 +62,14 @@
                   data-productid=""
                   data-phone=""
                   data-expirationminutes='5'
-                  data-timeouturl="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}"
+                  data-timeouturl="{$linkReturn|escape:'html':'UTF-8'}"
                 /></script>
             </form>
         </div>
     </div>
 </div>
 
-{if $debug > 0}
+{if $debug}
   <br>
   <pre>
   {$var|print_r:true}
