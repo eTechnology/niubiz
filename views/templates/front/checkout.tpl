@@ -26,52 +26,6 @@
 {extends file='page.tpl'}
 {block name='page_content'}
 
-<div class="text-center">
-  <h1 class="h1">{l s='Confirmacion de pago' d='Modules.Niubiz.Checkout'}</h1>
-  <br>
-  <p>{l s='Para confirmar el pago, por favor haga click en el siguiente botón' d='Modules.Niubiz.Checkout'}</p>
-    <br>
-    <div class="row">
-        <div class="col-xs-12 col-md-12">
-            <form id="niubizform" action="{$linkReturn|escape:'html':'UTF-8'}" method="POST">
-                <script src="{$var.urlScript|escape:'html':'UTF-8'}"
-                  data-sessiontoken="{$var.sessionToken|escape:'htmlall':'UTF-8'}"
-                  data-merchantid="{$var.merchantId|escape:'htmlall':'UTF-8'}"
-                  data-channel="web"
-                  data-buttonsize=""
-                  data-buttoncolor=""
-                  data-merchantlogo="http://{$logo|escape:'htmlall':'UTF-8'}"
-                  data-merchantname=""
-                  data-formbuttoncolor="#0A0A2A"
-                  data-showamount=""
-                  data-purchasenumber="{$var.numOrden|escape:'htmlall':'UTF-8'}"
-                  data-amount="{$var.monto|escape:'htmlall':'UTF-8'}"
-                  data-cardholdername="{$customer.firstname|escape:'htmlall':'UTF-8'}"
-                  data-cardholderlastname="{$customer.lastname|escape:'htmlall':'UTF-8'}"
-                  data-cardholderemail="{$customer.email|escape:'htmlall':'UTF-8'}"
-                  data-usertoken="{$var.userTokenId|escape:'htmlall':'UTF-8'}"
-                  data-recurrence=""
-                  data-frequency=""
-                  data-recurrencetype=""
-                  data-recurrenceamount=""
-                  data-documenttype="0"
-                  data-documentid=""
-                  data-beneficiaryid="NIUBIZ"
-                  data-productid=""
-                  data-phone=""
-                  data-expirationminutes='5'
-                  data-timeouturl="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}"
-                /></script>
-            </form>
-        </div>
-    </div>
-</div>
-
-{if $debug > 0}
-  <br>
-  <pre>
-  {$var|print_r:true}
-  </pre>
-{/if}
+hola
 
 {/block}
