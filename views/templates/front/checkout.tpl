@@ -33,7 +33,7 @@
     <br>
     <div class="row">
         <div class="col-xs-12 col-md-12">
-            <form id="niubizform" action="{$link->getModuleLink('niubiz', 'return')|escape:'html':'UTF-8'}" method="POST">
+            <form id="niubizform" action="{$linkReturn|escape:'html':'UTF-8'}" method="POST">
                 <script src="{$var.urlScript|escape:'html':'UTF-8'}"
                   data-sessiontoken="{$var.sessionToken|escape:'htmlall':'UTF-8'}"
                   data-merchantid="{$var.merchantId|escape:'htmlall':'UTF-8'}"
@@ -46,9 +46,9 @@
                   data-showamount=""
                   data-purchasenumber="{$var.numOrden|escape:'htmlall':'UTF-8'}"
                   data-amount="{$var.monto|escape:'htmlall':'UTF-8'}"
-                  data-cardholdername="{$customer->firstname|escape:'htmlall':'UTF-8'}"
-                  data-cardholderlastname="{$customer->lastname|escape:'htmlall':'UTF-8'}"
-                  data-cardholderemail="{$customer->email|escape:'htmlall':'UTF-8'}"
+                  data-cardholdername="{$customer.firstname|escape:'htmlall':'UTF-8'}"
+                  data-cardholderlastname="{$customer.lastname|escape:'htmlall':'UTF-8'}"
+                  data-cardholderemail="{$customer.email|escape:'htmlall':'UTF-8'}"
                   data-usertoken="{$var.userTokenId|escape:'htmlall':'UTF-8'}"
                   data-recurrence=""
                   data-frequency=""
@@ -68,10 +68,10 @@
 </div>
 
 {if $debug > 0}
-<br>
-<pre>
-{$var|print_r:true}
-</pre>
+  <br>
+  <pre>
+  {$var|print_r:true}
+  </pre>
 {/if}
 
 {/block}
