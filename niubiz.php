@@ -42,7 +42,7 @@ class Niubiz extends PaymentModule
     {
         $this->name = 'niubiz';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.7';
+        $this->version = '1.0.8';
         $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
         $this->author = "Victor Castro";
         $this->controllers = array('checkout');
@@ -607,7 +607,6 @@ class Niubiz extends PaymentModule
 
         $this->context->smarty->assign(array(
             'logo' => Configuration::get('VSA_LOGO'),
-            'customer' => (array) $customer,
             'debug' => Configuration::get('VSA_DEBUG'),
             'psVersion' => $this->psVersion,
             'var' => $variables,
