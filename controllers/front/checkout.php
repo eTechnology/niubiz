@@ -68,7 +68,7 @@ class NiubizCheckoutModuleFrontController extends ModuleFrontController
             'debug' => Configuration::get('NBZ_DEBUG'),
             'psVersion' => $this->module->psVersion,
             'var' => $variables,
-            'linkReturn' => $this->context->link->getModuleLink($this->module->name, 'return', array(), true)
+            'linkReturn' => $this->context->link->getModuleLink($this->module->name, 'return', ['idcart' => $cart->id], true)
         ));
         
         $this->setTemplate('module:niubiz/views/templates/front/checkout.tpl');

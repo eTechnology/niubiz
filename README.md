@@ -17,7 +17,7 @@ This module provides integration to an Internet payment service with a VISA card
 3. Complete settings module and enjoy
 
 #### Mode SSH (Advanced)
-1. In path /modules on your prestashop:
+1. In path `/modules` on your prestashop:
 ```bash
 git clone https://github.com/vhc-prestashop-peru/niubiz.git
 ```

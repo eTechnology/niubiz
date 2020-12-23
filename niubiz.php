@@ -42,7 +42,7 @@ class Niubiz extends PaymentModule
     {
         $this->name = 'niubiz';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.7';
+        $this->version = '1.0.8';
         $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
         $this->author = "Victor Castro";
         $this->controllers = array('checkout');
@@ -612,7 +612,7 @@ class Niubiz extends PaymentModule
             'psVersion' => $this->psVersion,
             'var' => $variables,
             'checkTotal' => Tools::displayPrice($cart->getOrderTotal(true, Cart::BOTH)),
-            'linkReturn' => $this->context->link->getModuleLink($this->name, 'return', array(), true)
+            'linkReturn' => $this->context->link->getModuleLink($this->name, 'return', ['idcart' => $cart->id], true)
         ));
 
         $newOption = new PaymentOption();
